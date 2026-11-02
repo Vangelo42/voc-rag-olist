@@ -71,11 +71,23 @@ voc-rag\
   - "previsao do tempo" -> `fora_do_escopo` ja na etapa de reescrita (a busca nem rodou).
 - Limitacao a registrar no README: "principais" significa as melhores avaliacoes por similaridade, nao as mais frequentes; a resposta descreve uma amostra recuperada, nao uma estatistica.
 
+## Resultados da v2 do rag.py (testes reais com o qwen3:8b)
+- Tempos: 1a chamada depois de ligar o PC: reescrita 20,7 s (carga do modelo), total 26,1 s. Chamadas seguintes: reescrita 2,4-3,4 s, busca 0,5-0,6 s, geracao 3,4-4,0 s, total 7,3-7,9 s.
+- Diversidade: `evidencias_selecionadas` = 10 em todas as perguntas (NEAR_DUP = 0,93 nao foi agressivo). "O que os clientes elogiam?" (faixa positiva) agora cobre qualidade, entrega e satisfacao geral, em vez de 10 variacoes de "entregou antes do prazo".
+- "Problemas de entrega" (faixa negativa): 9 de 9 citacoes corretas e nenhuma palavra de frequencia.
+- Camada do limiar isolada (`--sem-reescrita`, "Qual a previsao do tempo para amanha?"): `sem_evidencia`, mas a melhor similaridade foi 0,849, a 0,001 do limiar (sem acentos era 0,842). O limiar sozinho e fragil; o classificador de escopo do LLM e essencial.
+- Perguntas dificeis ("Quantos pedidos a empresa teve em 2017?" e "Qual o telefone do suporte da loja?"): `fora_do_escopo` pelo classificador, em ~2,5 s.
+
+## Problemas conhecidos (tratar na v3 do rag.py, Fase 4 e Fase 5)
+1. Palavras de frequencia: em "O que os clientes elogiam?" o modelo escreveu "principalmente" (comparacao de frequencia sem base, contra a regra 3 do prompt). Plano: detectar na resposta expressoes como "principalmente", "maioria", "mais citado", "muitos", "principal"; pedir uma nova versao uma vez, sem elas; se persistir, adicionar aviso.
+2. Precisao das citacoes: o verificador so confere se o numero citado existe, nao se a avaliacao sustenta a afirmacao. Em "principais problemas" houve 2 citacoes fracas: [9] ("nao recebi o produto...") sob "falta de pecas" e [7] ("O produto e pessimo.") sob "atendimento". Em "elogiam", [7] ("Produto e entrega ok") sob "rapidez da entrega". Plano: medir na Fase 5 (precisao das citacoes, avaliacao manual) e, se sobrar tempo, um passo de verificacao com o LLM por topico.
+3. Sentimento: a similaridade nao distingue elogio de reclamacao. Em "principais problemas" (sem filtro) entrou como evidencia uma avaliacao positiva ("A entrega foi feita no prazo", nota 4). Plano para a Fase 4: inferir filtros a partir da pergunta (faixa de nota, periodo, categoria), por exemplo "problemas" e "reclamacoes" -> faixa negativa, "elogiam" -> positiva, e expor os mesmos filtros na interface.
+
 ## Status
 - [x] Fase 0: Ollama + qwen3:8b respondendo em portugues; Odysseus instalado e conectado ao Ollama.
 - [x] Fase 1: `preparar_base.py` executado com sucesso.
 - [x] Fase 2: indexacao concluida (37.994 documentos) e busca testada.
-- [~] Fase 3: `calibrar_limiar.py` e `rag.py` v1 prontos, testados com o modelo real e commitados. **A v2 (selecao diversificada, prompt reforcado, tempos no --debug) esta escrita e testada so com simulacao; falta rodar com o qwen3:8b e commitar.**
+- [x] Fase 3: `calibrar_limiar.py` e `rag.py` v2 testados com o modelo real (ver Resultados da v2). Falta commitar a v2 (conferir com `git status`) e tratar os Problemas conhecidos na v3.
 - [ ] Fase 4: filtros por metadados (incluir categoria do produto via orders, order_items e products) e interface Streamlit.
 - [ ] Fase 5: ~20 perguntas de teste, incluindo fora do escopo.
 - [ ] Fase 6: README e repositorio.
@@ -83,10 +95,12 @@ voc-rag\
 - [ ] Trilha Databricks (+10 pontos) em paralelo.
 
 ## Proximo passo
-1. Substituir `src/rag.py` pela v2 e re-rodar com `--debug`: "O que os clientes elogiam?" (--faixa positiva), "Quais problemas aparecem nas avaliacoes de clientes insatisfeitos com a entrega?" (--faixa negativa) e "Quais os principais problemas relatados pelos clientes?". Conferir `evidencias_selecionadas` (se ficar abaixo de ~5, subir `NEAR_DUP` para 0,95) e se as evidencias agora cobrem varios temas.
-2. Testar a camada do limiar sem a reescrita: `--sem-reescrita` com "Qual a previsao do tempo para amanha?" (esperado: `sem_evidencia`). Com a reescrita, testar as perguntas dificeis "Quantos pedidos a empresa teve em 2017?" e "Qual o telefone do suporte da loja?" para ver se o classificador de escopo as barra.
-3. Anotar os tempos (`tempos_s` no --debug) para o README.
-4. Commitar e seguir para a Fase 4 (filtros por nota/periodo/categoria e interface Streamlit).
+1. Conferir com `git status` que o `rag.py` v2 esta commitado e enviado.
+2. v3 do `rag.py`: guarda de palavras de frequencia (Problema 1) e, se couber, verificacao de citacoes (Problema 2).
+3. Fase 4: filtros inferidos da pergunta (faixa de nota, periodo e categoria de produto, esta via join orders -> order_items -> products e `product_category_name_translation.csv`), com justificativa de como os metadados melhoram a recuperacao; interface Streamlit com filtros, resposta, evidencias e aviso de evidencia insuficiente.
+4. Fase 5: ~20 perguntas de teste (incluindo fora do escopo e dificeis); registrar acerto de escopo, taxa de recusa, precisao das citacoes e tempos.
+5. Fase 6 (README e reproducao) e Fase 7 (video). Trilha Databricks em paralelo. Prazo: 17/11/2026.
 
 ## Registro de trocas (preencher a cada troca de assistente)
 - Data / quem trabalhou / o que foi feito / o que ficou pendente:
+- 02/11/2026 | Claude (chat original) | Fases 0 a 3 concluidas e testadas (ver Resultados da v2) | Pendente: v3 do rag.py, Fase 4 em diante.
