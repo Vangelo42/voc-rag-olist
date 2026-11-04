@@ -4,6 +4,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 
 CSV_PROCESSADO = RAIZ / "data" / "processed" / "reviews_processadas.csv"
+CSV_ENRIQUECIDO = RAIZ / "data" / "processed" / "reviews_enriquecidas.csv"  # gerado por enriquecer_metadados.py
 CACHE_EMBEDDINGS = RAIZ / "data" / "processed" / "embeddings_e5_base.npy"
 CHROMA_DIR = RAIZ / "data" / "chroma_db"
 COLECAO = "avaliacoes_olist"

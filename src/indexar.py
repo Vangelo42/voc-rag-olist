@@ -1,7 +1,9 @@
-"""Fase 2 - Geracao de embeddings e indexacao no ChromaDB.
+"""Fase 2/4 - Geracao de embeddings e indexacao no ChromaDB.
 
-Le data/processed/reviews_processadas.csv, gera um embedding por avaliacao e grava
-tudo em data/chroma_db (colecao com distancia de cosseno).
+Le data/processed/reviews_enriquecidas.csv (gerado por enriquecer_metadados.py), gera um
+embedding por avaliacao e grava tudo em data/chroma_db (colecao com distancia de cosseno),
+com os metadados: nota, faixa_nota, ano_mes, data_avaliacao, order_id, categoria,
+status_pedido, ano_mes_compra, faixa_entrega, n_categorias e dias_atraso (so se houve entrega).
 
 Uso (a partir da pasta voc-rag, com o ambiente virtual ativo):
     python src/indexar.py
@@ -19,7 +21,7 @@ from config import (
     CACHE_EMBEDDINGS,
     CHROMA_DIR,
     COLECAO,
-    CSV_PROCESSADO,
+    CSV_ENRIQUECIDO,
     MODELO_EMBEDDINGS,
     PREFIXO_DOCUMENTO,
 )
@@ -64,6 +66,29 @@ def gerar_embeddings(documentos: list[str]) -> np.ndarray:
     return emb
 
 
+def montar_metadados(df: pd.DataFrame) -> list[dict]:
+    """Um dicionario por avaliacao. O Chroma nao aceita valores vazios (None/NaN):
+    por isso dias_atraso so entra quando o pedido tem data de entrega."""
+    metadados = []
+    for r in df.itertuples(index=False):
+        m = {
+            "nota": int(r.nota),
+            "faixa_nota": r.faixa_nota,
+            "ano_mes": r.ano_mes,
+            "data_avaliacao": r.data_avaliacao,
+            "order_id": str(r.order_id),
+            "categoria": str(r.categoria),
+            "status_pedido": str(r.status_pedido),
+            "ano_mes_compra": str(r.ano_mes_compra),
+            "faixa_entrega": str(r.faixa_entrega),
+            "n_categorias": int(r.n_categorias),
+        }
+        if pd.notna(r.dias_atraso):
+            m["dias_atraso"] = int(r.dias_atraso)
+        metadados.append(m)
+    return metadados
+
+
 def indexar(df: pd.DataFrame, emb: np.ndarray) -> None:
     CHROMA_DIR.mkdir(parents=True, exist_ok=True)
     cliente = chromadb.PersistentClient(path=str(CHROMA_DIR))
@@ -79,16 +104,7 @@ def indexar(df: pd.DataFrame, emb: np.ndarray) -> None:
 
     ids = df["review_id"].astype(str).tolist()
     documentos = df["documento"].tolist()
-    metadados = [
-        {
-            "nota": int(r.nota),
-            "faixa_nota": r.faixa_nota,
-            "ano_mes": r.ano_mes,
-            "data_avaliacao": r.data_avaliacao,
-            "order_id": str(r.order_id),
-        }
-        for r in df.itertuples(index=False)
-    ]
+    metadados = montar_metadados(df)
 
     for i in range(0, len(ids), TAMANHO_LOTE_CHROMA):
         j = i + TAMANHO_LOTE_CHROMA
@@ -101,10 +117,16 @@ def indexar(df: pd.DataFrame, emb: np.ndarray) -> None:
         print(f"Indexados {min(j, len(ids))}/{len(ids)}")
 
     print(f"\nColecao '{COLECAO}' pronta com {colecao.count()} documentos em {CHROMA_DIR}")
+    for filtro in ({"faixa_entrega": "atrasada"}, {"faixa_nota": "negativa"},
+                   {"categoria": "beleza_saude"}):
+        n = len(colecao.get(where=filtro, include=[])["ids"])
+        print(f"  conferencia do filtro {filtro}: {n} documentos")
 
 
 def main() -> None:
-    df = pd.read_csv(CSV_PROCESSADO)
+    if not CSV_ENRIQUECIDO.exists():
+        raise SystemExit(f"Nao achei {CSV_ENRIQUECIDO}. Rode antes: python src/enriquecer_metadados.py")
+    df = pd.read_csv(CSV_ENRIQUECIDO)
     df["titulo"] = df["titulo"].fillna("")
     print(f"Documentos a indexar: {len(df)}")
     emb = gerar_embeddings(df["documento"].tolist())
