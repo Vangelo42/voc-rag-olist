@@ -4,7 +4,7 @@ Fluxo:
   pergunta -> processamento (LLM reescreve e checa escopo) -> embeddings
   -> recuperacao no ChromaDB -> limiar de relevancia (>= N evidencias unicas)
   -> selecao diversificada -> contexto numerado -> geracao (Ollama)
-  -> checagem de citacoes
+  -> guarda de palavras de frequencia (v3) -> checagem de citacoes
 
 Uso (a partir da pasta voc-rag, com o ambiente virtual ativo e o Ollama aberto):
     python src/rag.py "Quais os principais problemas de entrega?"
@@ -116,6 +116,7 @@ def chamar_ollama(mensagens: list[dict], modelo: str, temperatura: float = 0.1) 
         "model": modelo,
         "messages": mensagens,
         "stream": False,
+        "keep_alive": "30m",  # mantem o modelo na memoria entre perguntas (evita ~20 s de recarga)
         "think": False,  # modelos com raciocinio (ex.: Qwen3): resposta direta e mais rapida
         "options": {"temperature": temperatura, "num_ctx": 4096},
     }
@@ -142,6 +143,44 @@ def conferir_citacoes(resposta: str, total: int) -> tuple[list[int], list[int]]:
     validas = sorted(n for n in citadas if 1 <= n <= total)
     invalidas = sorted(n for n in citadas if not 1 <= n <= total)
     return validas, invalidas
+
+
+# --- Guarda de palavras de frequencia (v3) ----------------------------------
+# A resposta descreve uma amostra recuperada, nao uma estatistica. Estas expressoes
+# comparam frequencia sem base e sao detectadas na resposta (texto normalizado).
+PADROES_FREQUENCIA = re.compile(
+    r"\b(principalmente|principais|principal|maioria|majoritariamente|predominantemente"
+    r"|frequentemente|geralmente|comumente|muitos|muitas"
+    r"|mais (?:citad[oa]s?|comum|comuns|frequentes?|recorrentes?|mencionad[oa]s?))\b"
+)
+
+
+def detectar_frequencia(resposta: str, pergunta: str = "") -> list[str]:
+    """Expressoes de frequencia na resposta. Ignora as que o proprio usuario usou na pergunta
+    (ex.: 'principais problemas'), pois ecoar a pergunta nao e afirmar frequencia."""
+    pergunta_norm = normalizar(pergunta)
+    achadas = []
+    for m in PADROES_FREQUENCIA.finditer(normalizar(resposta)):
+        termo = m.group(0)
+        if termo not in pergunta_norm and termo not in achadas:
+            achadas.append(termo)
+    return achadas
+
+
+def pedir_reescrita_sem_frequencia(mensagens: list[dict], resposta: str,
+                                   termos: list[str]) -> list[dict]:
+    """Mensagens para a segunda tentativa: mostra a resposta anterior e pede a correcao."""
+    return mensagens + [
+        {"role": "assistant", "content": resposta},
+        {"role": "user", "content": (
+            "Reescreva a resposta sem estas expressões de frequência: "
+            + ", ".join(f'"{t}"' for t in termos)
+            + '. Use "há relatos de ..." e não compare a frequência entre temas. '
+            "Mantenha o mesmo formato: uma frase de síntese e depois tópicos curtos, um por tema, "
+            "cada tópico com as suas próprias citações [n] no fim da frase. "
+            "Mantenha todas as outras regras. Responda só com a nova versão."
+        )},
+    ]
 
 
 # --- Pipeline ------------------------------------------------------------------
@@ -243,6 +282,22 @@ class RAG:
         t = time.perf_counter()
         resposta = chamar_ollama(mensagens, self.modelo_llm)
         tempos["geracao"] = round(time.perf_counter() - t, 1)
+
+        # Guarda de frequencia: uma nova versao, no maximo; se persistir, aviso
+        termos = detectar_frequencia(resposta, pergunta)
+        resultado["detalhes"]["frequencia_detectada"] = termos
+        if termos:
+            t = time.perf_counter()
+            resposta = chamar_ollama(
+                pedir_reescrita_sem_frequencia(mensagens, resposta, termos), self.modelo_llm)
+            tempos["reescrita_frequencia"] = round(time.perf_counter() - t, 1)
+            restantes = detectar_frequencia(resposta, pergunta)
+            resultado["detalhes"]["frequencia_apos_reescrita"] = restantes
+            if restantes:
+                resultado["avisos"].append(
+                    "A resposta ainda contém expressões de frequência "
+                    f"({', '.join(restantes)}). As avaliações são uma amostra recuperada, "
+                    "não uma estatística.")
         tempos["total"] = round(time.perf_counter() - inicio, 1)
 
         if normalizar(resposta).startswith(normalizar(MSG_SEM_EVIDENCIA)[:40]):
