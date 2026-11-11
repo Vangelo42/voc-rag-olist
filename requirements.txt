@@ -1,0 +1,10 @@
+# Dependencias do projeto (testado no Windows 10, Python 3.11).
+# Versoes obtidas com `pip freeze` no ambiente em que o projeto foi desenvolvido.
+chromadb==1.5.9
+numpy==2.4.6
+pandas==3.1.0
+requests==2.34.2
+sentence-transformers==6.2.0
+torch==2.15.0
+# Streamlit sem versao fixada: foi instalado com `pip install streamlit` (a mais recente na epoca).
+streamlit

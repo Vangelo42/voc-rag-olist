@@ -1,0 +1,38 @@
+=== Comportamento ===
+Perguntas válidas: 20/20 respondidas; recusas indevidas: 0
+Fora do escopo: 24 execuções (8 perguntas); recusadas 24/24
+   pelo classificador de escopo (fora_do_escopo): 24
+   pelo limiar ou pelo modelo (sem_evidencia):     0
+   respondidas indevidamente:                      0
+   E01: fora_do_escopo x3
+   E02: fora_do_escopo x3
+   E03: fora_do_escopo x3
+   E04: fora_do_escopo x3
+   E05: fora_do_escopo x3
+   E06: fora_do_escopo x3
+   E07: fora_do_escopo x3
+   E08: fora_do_escopo x3
+Só as perguntas novas (não usadas para ajustar o sistema):
+   válidas respondidas: 6/6 | fora do escopo recusadas: 9/9 execuções
+Perguntas difíceis (só registradas; avalie o texto em resultados.csv):
+   D01 (O que os clientes dizem sobre o aplicativo da loja?): fora_do_escopo x1
+   D02 (Quais elogios aparecem sobre entregas atrasadas?): respondida x1
+   D03 (Entrega): respondida x1
+   D04 (Os clientes reclamam de cobrança duplicada no cartão?): fora_do_escopo x1
+
+=== Tempos das respostas (s, com o modelo já carregado) ===
+Total: mediana 7.5 | média 8.3 | máx. 12.1
+   reescrita: mediana 3.5
+   busca: mediana 0.6
+   geração: mediana 3.5
+
+=== Guardas (respostas geradas) ===
+Respostas: 22 | evidências por resposta (média): 9.5
+Palavras de frequência detectadas: 5 respostas; persistiram após a reescrita: 0
+Citações inexistentes: 0 respostas | respostas sem nenhuma citação: 0
+
+=== Precisão das citações (avaliação manual) ===
+Pares afirmação-citação rotulados: 60 de 165 (amostra aleatória)
+   sustenta: 27 | parcialmente: 29 | não sustenta: 4
+   precisão estrita (só 'sim'):   45%
+   precisão tolerante (sim+parcial): 93%

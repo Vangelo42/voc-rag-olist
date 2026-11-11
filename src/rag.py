@@ -1,14 +1,19 @@
-"""Fase 3 - Pipeline RAG (Voice of Customer sobre avaliacoes da Olist).
+"""Fase 3/4 - Pipeline RAG (Voice of Customer sobre avaliacoes da Olist).
 
 Fluxo:
-  pergunta -> processamento (LLM reescreve e checa escopo) -> embeddings
-  -> recuperacao no ChromaDB -> limiar de relevancia (>= N evidencias unicas)
+  pergunta -> processamento (LLM reescreve, checa escopo e sugere categoria;
+  regras inferem filtros de nota, entrega e periodo) -> embeddings
+  -> recuperacao no ChromaDB com filtros de metadados
+  -> limiar de relevancia (>= N evidencias unicas)
   -> selecao diversificada -> contexto numerado -> geracao (Ollama)
   -> guarda de palavras de frequencia (v3) -> checagem de citacoes
 
 Uso (a partir da pasta voc-rag, com o ambiente virtual ativo e o Ollama aberto):
     python src/rag.py "Quais os principais problemas de entrega?"
-    python src/rag.py "O que os clientes elogiam?" --faixa positiva --debug
+    python src/rag.py "O que os clientes elogiam?" --debug
+    python src/rag.py "Problemas de entrega em 2017" --debug   # filtros inferidos da pergunta
+    python src/rag.py "O que dizem?" --faixa negativa --entrega atrasada --categoria beleza_saude
+    python src/rag.py --listar-categorias
     python src/rag.py                      # modo interativo
 """
 import argparse
@@ -23,6 +28,7 @@ import requests
 from sentence_transformers import SentenceTransformer
 
 from config import CHROMA_DIR, COLECAO, MODELO_EMBEDDINGS, PREFIXO_PERGUNTA
+from filtros import descrever, inferir_filtros, montar_where, validar_categoria
 
 # --- Parametros do pipeline (justificar no README) -------------------------
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
@@ -33,6 +39,10 @@ TOP_K_BUSCA = 30       # candidatos por consulta (busca larga, depois filtra e s
 MAX_EVIDENCIAS = 10    # evidencias enviadas ao modelo
 NEAR_DUP = 0.93        # similaridade entre evidencias a partir da qual sao "quase iguais"
 TIMEOUT_S = 300
+LOTE_LEITURA = 2000    # tamanho do lote ao ler os metadados do indice (limite do SQLite)
+
+ROTULOS_FILTROS = {"faixa_nota": "faixa de nota", "nota": "nota", "faixa_entrega": "entrega",
+                   "categoria": "categoria", "meses": "período da compra"}
 
 MSG_SEM_EVIDENCIA = (
     "Não encontrei evidências suficientes nas avaliações para responder a essa pergunta."
@@ -43,11 +53,26 @@ MSG_FORA_ESCOPO = (
 )
 
 PROMPT_REESCRITA = """Você ajuda a buscar avaliações de clientes de uma loja online brasileira.
-Tarefa: dada a PERGUNTA de um gestor, escreva de 3 a 5 frases curtas, no estilo de avaliações \
-reais de clientes, que seriam boas respostas para ela. Uma frase por linha, sem numeração e sem explicações.
-Se a pergunta NÃO tiver relação com compras, entrega, produtos, vendedores, atendimento ou \
-experiência dos clientes, ou pedir números totais, vendas, preços, telefones ou dados \
-cadastrais que não aparecem em avaliações, responda apenas: FORA_DO_ESCOPO
+Dada a PERGUNTA de um gestor, responda neste formato exato:
+
+Linha 1: ESCOPO: DENTRO - <motivo em até 8 palavras>   ou   ESCOPO: FORA - <motivo em até 8 palavras>
+- DENTRO: perguntas sobre o que os clientes escreveram nas avaliações: compras, entrega, \
+produtos, vendedores, atendimento, qualidade, elogios, reclamações, problemas, padrões e \
+experiência dos clientes. Também são DENTRO as perguntas que citam notas, categorias de \
+produto ou períodos (meses e anos): são apenas filtros sobre as avaliações.
+- FORA: assuntos sem relação com avaliações de clientes (esportes, notícias, receitas, \
+programação, conhecimentos gerais...) ou pedidos de números totais, contagens, faturamento, \
+preços, telefones, endereços ou dados cadastrais, que não aparecem nas avaliações.
+Na dúvida, escolha DENTRO.
+Se for FORA, pare na linha 1 e não escreva mais nada.
+
+Se for DENTRO, depois da linha 1 escreva de 3 a 5 frases curtas, no estilo de avaliações \
+reais de clientes, que seriam boas respostas para a pergunta (uma frase por linha, sem \
+numeração e sem explicações). Na última linha escreva CATEGORIA: <nome>.
+Escreva CATEGORIA: nenhuma, a menos que a pergunta cite explicitamente um tipo de produto que \
+corresponda a uma das categorias abaixo. Não deduza categoria a partir de temas como entrega, \
+atendimento, preço ou qualidade em geral. Se citar, copie o nome exato da lista.
+CATEGORIAS: {categorias}
 
 PERGUNTA: {pergunta}"""
 
@@ -133,7 +158,7 @@ def chamar_ollama(mensagens: list[dict], modelo: str, temperatura: float = 0.1) 
 
 def montar_contexto(evidencias: list[dict]) -> str:
     return "\n".join(
-        f"[{i}] (nota {e['meta']['nota']}, {e['meta']['ano_mes']}) {e['doc']}"
+        f"[{i}] (nota {e['meta']['nota']}, compra {e['meta'].get('ano_mes_compra', e['meta']['ano_mes'])}) {e['doc']}"
         for i, e in enumerate(evidencias, start=1)
     )
 
@@ -150,7 +175,7 @@ def conferir_citacoes(resposta: str, total: int) -> tuple[list[int], list[int]]:
 # comparam frequencia sem base e sao detectadas na resposta (texto normalizado).
 PADROES_FREQUENCIA = re.compile(
     r"\b(principalmente|principais|principal|maioria|majoritariamente|predominantemente"
-    r"|frequentemente|geralmente|comumente|muitos|muitas"
+    r"|frequentemente|geralmente|comumente|muitos|muitas|varios|varias"
     r"|mais (?:citad[oa]s?|comum|comuns|frequentes?|recorrentes?|mencionad[oa]s?))\b"
 )
 
@@ -183,6 +208,31 @@ def pedir_reescrita_sem_frequencia(mensagens: list[dict], resposta: str,
     ]
 
 
+def saida_indica_fora_do_escopo(saida: str) -> bool:
+    """Reconhece 'ESCOPO: FORA - motivo' e variacoes ('FORA', 'ESCOPO:' + 'FORA' na linha
+    seguinte, markdown, FORA_DO_ESCOPO). So olha o INICIO da saida: o motivo pode conter a
+    palavra 'fora' e uma frase comum que comeca com 'Fora do prazo...' NAO conta."""
+    linhas = [normalizar(l).replace("_", " ") for l in saida.splitlines() if l.strip()]
+    if not linhas:
+        return False
+    primeira = linhas[0]
+    if re.match(r"escopo fora\b", primeira) or re.fullmatch(r"fora( do escopo)?", primeira):
+        return True
+    return primeira == "escopo" and len(linhas) > 1 and linhas[1].startswith("fora")
+
+
+def combinar_filtros(inferidos: dict, manuais: dict | None) -> dict:
+    """Filtros inferidos da pergunta + filtros escolhidos pelo usuario (manuais mandam).
+    Um filtro manual de nota substitui os de nota inferidos, para nao se contradizerem."""
+    final = dict(inferidos)
+    manuais = {k: v for k, v in (manuais or {}).items() if v}
+    if "faixa_nota" in manuais or "nota" in manuais:
+        final.pop("faixa_nota", None)
+        final.pop("nota", None)
+    final.update(manuais)
+    return final
+
+
 # --- Pipeline ------------------------------------------------------------------
 class RAG:
     def __init__(self, modelo_llm=MODELO_LLM, limiar=LIMIAR, min_evidencias=MIN_EVIDENCIAS):
@@ -191,28 +241,51 @@ class RAG:
         self.min_evidencias = min_evidencias
         self.encoder = SentenceTransformer(MODELO_EMBEDDINGS)
         self.colecao = chromadb.PersistentClient(path=str(CHROMA_DIR)).get_collection(COLECAO)
+        # Categorias que existem no indice (o LLM so pode escolher entre elas)
+        # Leitura em lotes: pedir tudo de uma vez estoura o limite de variaveis do SQLite
+        categorias = set()
+        total = self.colecao.count()
+        for inicio in range(0, total, LOTE_LEITURA):
+            lote = self.colecao.get(include=["metadatas"], limit=LOTE_LEITURA, offset=inicio)
+            categorias.update(m["categoria"] for m in lote["metadatas"] if m.get("categoria"))
+        self.categorias = sorted(categorias - {"sem_categoria"})
 
     # Etapa 1: processamento da pergunta
     def processar_pergunta(self, pergunta: str, reescrever: bool = True):
-        """Retorna (consultas, fora_do_escopo). Consultas = pergunta original + frases geradas."""
+        """Retorna (consultas, fora_do_escopo, categoria).
+        Consultas = pergunta original + frases geradas. Categoria = sugestao do LLM, ja validada."""
         consultas = [pergunta]
         if not reescrever:
-            return consultas, False
+            return consultas, False, None
         saida = chamar_ollama(
-            [{"role": "user", "content": PROMPT_REESCRITA.format(pergunta=pergunta)}],
+            [{"role": "user", "content": PROMPT_REESCRITA.format(
+                pergunta=pergunta, categorias=", ".join(self.categorias))}],
             self.modelo_llm,
         )
-        if "fora do escopo" in normalizar(saida).replace("_", " "):
-            return consultas, True
-        for linha in saida.splitlines():
+        self.ultima_saida_reescrita = saida  # aparece no --debug (saida_reescrita)
+        if saida_indica_fora_do_escopo(saida):
+            return consultas, True, None
+        linhas = [l for l in saida.splitlines() if l.strip()]
+        categoria = None
+        for linha in linhas:
+            if re.match(r"^\W*escopo\s*:", linha.strip(), flags=re.I):
+                continue
+            if normalizar(linha) in ("dentro", "fora"):  # sobra do formato de escopo
+                continue
+            m = re.match(r"^\W*(categorias?)\s*:\s*(.*)$", linha.strip(), flags=re.I)
+            if m:
+                if m.group(1).lower() == "categoria":
+                    valor = m.group(2).strip(" *_`'\".")
+                    categoria = validar_categoria(valor, self.categorias)  # None se "nenhuma"/invalida
+                continue
             frase = re.sub(r"^[\-\*\d\.\)\s]+", "", linha).strip()
             if frase:
                 consultas.append(frase)
-        return consultas[:6], False
+        return consultas[:6], False, categoria
 
     # Etapa 2: recuperacao semantica (uma lista ordenada por consulta)
-    def buscar(self, consultas: list[str], faixa: str | None = None) -> list[list[dict]]:
-        onde = {"faixa_nota": faixa} if faixa else None
+    def buscar(self, consultas: list[str], onde: dict | None = None) -> list[list[dict]]:
+        """`onde` = filtro de metadados no formato do ChromaDB (ver filtros.montar_where)."""
         listas = []
         for texto in consultas:
             vetor = self.encoder.encode(PREFIXO_PERGUNTA + texto, normalize_embeddings=True)
@@ -231,24 +304,45 @@ class RAG:
             ])
         return listas
 
-    def perguntar(self, pergunta: str, faixa: str | None = None, reescrever: bool = True) -> dict:
+    def perguntar(self, pergunta: str, filtros_manuais: dict | None = None,
+                  reescrever: bool = True, filtros_automaticos: bool = True) -> dict:
+        """filtros_manuais: chaves faixa_nota, nota, faixa_entrega, meses (lista 'AAAA-MM'),
+        categoria. Mandam sobre os inferidos. filtros_automaticos=False desliga a inferencia
+        (regras de nota/entrega/periodo e a categoria sugerida pelo LLM)."""
         resultado = {
             "pergunta": pergunta, "status": None, "resposta": None, "evidencias": [],
             "citacoes_validas": [], "citacoes_invalidas": [], "avisos": [], "detalhes": {},
+            "filtros": {}, "filtros_descricao": "sem filtros",
         }
         tempos = resultado["detalhes"]["tempos_s"] = {}
         inicio = time.perf_counter()
 
-        consultas, fora = self.processar_pergunta(pergunta, reescrever)
+        consultas, fora, categoria_llm = self.processar_pergunta(pergunta, reescrever)
         tempos["reescrita"] = round(time.perf_counter() - inicio, 1)
         resultado["detalhes"]["consultas"] = consultas
+        if reescrever:
+            resultado["detalhes"]["saida_reescrita"] = getattr(self, "ultima_saida_reescrita", None)
         if fora:
             tempos["total"] = tempos["reescrita"]
             resultado.update(status="fora_do_escopo", resposta=MSG_FORA_ESCOPO)
             return resultado
 
+        # Filtros: regras (nota, entrega, periodo) + categoria do LLM + escolhas manuais
+        inferidos, motivos = inferir_filtros(pergunta) if filtros_automaticos else ({}, [])
+        if filtros_automaticos and categoria_llm:
+            inferidos["categoria"] = categoria_llm
+            motivos.append(f"categoria {categoria_llm} (sugerida pelo LLM, validada na lista)")
+        manuais = {k: v for k, v in (filtros_manuais or {}).items() if v}
+        motivos += [f"filtro de {ROTULOS_FILTROS.get(k, k)} escolhido manualmente" for k in manuais]
+        filtros = combinar_filtros(inferidos, manuais)
+        onde = montar_where(filtros)
+        resultado["filtros"] = filtros
+        resultado["filtros_descricao"] = descrever(filtros)
+        resultado["detalhes"]["filtros_motivos"] = motivos
+        resultado["detalhes"]["where"] = onde
+
         t = time.perf_counter()
-        listas = self.buscar(consultas, faixa)
+        listas = self.buscar(consultas, onde)
         tempos["busca"] = round(time.perf_counter() - t, 1)
 
         melhor_por_id: dict[str, dict] = {}
@@ -269,6 +363,10 @@ class RAG:
         if len(textos_unicos) < self.min_evidencias:
             tempos["total"] = round(time.perf_counter() - inicio, 1)
             resultado.update(status="sem_evidencia", resposta=MSG_SEM_EVIDENCIA)
+            if filtros:
+                resultado["avisos"].append(
+                    f"Havia filtros ativos ({resultado['filtros_descricao']}). "
+                    "Tente remover algum deles ou ampliar o período.")
             return resultado
 
         evidencias = selecionar_diversas(listas, self.limiar, MAX_EVIDENCIAS)
@@ -321,6 +419,7 @@ def imprimir(res: dict, debug: bool) -> None:
     print("\n" + "=" * 72)
     print(f"Pergunta: {res['pergunta']}")
     print(f"Status:   {res['status']}")
+    print(f"Filtros:  {res.get('filtros_descricao', 'sem filtros')}")
     print("-" * 72)
     print(res["resposta"])
     for aviso in res["avisos"]:
@@ -330,7 +429,8 @@ def imprimir(res: dict, debug: bool) -> None:
         for i, e in enumerate(res["evidencias"], start=1):
             marca = "*" if i in res["citacoes_validas"] else " "
             print(f" {marca}[{i}] sim={e['sim']:.3f} | nota {e['meta']['nota']} "
-                  f"| {e['meta']['ano_mes']} | {e['doc']}")
+                  f"| compra {e['meta'].get('ano_mes_compra', '?')} | aval. {e['meta']['ano_mes']} "
+                  f"| {e['doc']}")
     if debug:
         print("\n[debug]")
         for k, v in res["detalhes"].items():
@@ -341,7 +441,15 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="RAG sobre avaliacoes de clientes (Olist)")
     ap.add_argument("pergunta", nargs="*", help="pergunta (vazio = modo interativo)")
     ap.add_argument("--faixa", choices=["negativa", "neutra", "positiva"],
-                    help="filtra por faixa de nota (1-2 negativa, 3 neutra, 4-5 positiva)")
+                    help="filtro manual de faixa de nota (1-2 negativa, 3 neutra, 4-5 positiva)")
+    ap.add_argument("--entrega", choices=["atrasada", "nao_entregue", "no_prazo"],
+                    help="filtro manual de entrega (entrega ao cliente x data estimada)")
+    ap.add_argument("--categoria", help="filtro manual de categoria (veja --listar-categorias)")
+    ap.add_argument("--meses", help="filtro manual de meses da compra, ex.: 2018-03,2018-04")
+    ap.add_argument("--sem-filtros", action="store_true",
+                    help="desliga os filtros inferidos da pergunta (so valem os manuais)")
+    ap.add_argument("--listar-categorias", action="store_true",
+                    help="mostra as categorias disponiveis e sai")
     ap.add_argument("--sem-reescrita", action="store_true",
                     help="nao usa o LLM para reescrever a pergunta nem checar o escopo")
     ap.add_argument("--modelo", default=MODELO_LLM, help="modelo do Ollama")
@@ -349,16 +457,35 @@ def main() -> None:
     args = ap.parse_args()
 
     rag = RAG(modelo_llm=args.modelo)
+    if args.listar_categorias:
+        print("\n".join(rag.categorias))
+        return
+
+    categoria = None
+    if args.categoria:
+        categoria = validar_categoria(args.categoria, rag.categorias)
+        if categoria is None:
+            raise SystemExit(f"Categoria '{args.categoria}' nao existe. "
+                             "Use --listar-categorias para ver as opcoes.")
+    meses = None
+    if args.meses:
+        meses = [m.strip() for m in args.meses.split(",") if m.strip()]
+        if not all(re.fullmatch(r"\d{4}-\d{2}", m) for m in meses):
+            raise SystemExit("--meses deve ter o formato AAAA-MM, separado por virgulas.")
+    manuais = {"faixa_nota": args.faixa, "faixa_entrega": args.entrega,
+               "categoria": categoria, "meses": meses}
     reescrever = not args.sem_reescrita
+    automaticos = not args.sem_filtros
 
     if args.pergunta:
-        imprimir(rag.perguntar(" ".join(args.pergunta), args.faixa, reescrever), args.debug)
+        imprimir(rag.perguntar(" ".join(args.pergunta), manuais, reescrever, automaticos),
+                 args.debug)
         return
     while True:
         p = input("\nPergunta (vazio para sair): ").strip()
         if not p:
             break
-        imprimir(rag.perguntar(p, args.faixa, reescrever), args.debug)
+        imprimir(rag.perguntar(p, manuais, reescrever, automaticos), args.debug)
 
 
 if __name__ == "__main__":

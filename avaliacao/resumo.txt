@@ -1,0 +1,37 @@
+=== Comportamento ===
+Perguntas válidas: 10/14 respondidas; recusas indevidas: 4
+   recusada: V05 (fora_do_escopo, melhor sim ): Quais padrões aparecem nas avaliações de clientes insatisfeitos?
+   recusada: V07 (fora_do_escopo, melhor sim ): Quais problemas de entrega aparecem nas avaliações de 2018?
+   recusada: V10 (fora_do_escopo, melhor sim ): Quais reclamações aparecem nas avaliações com nota 1?
+   recusada: V12 (fora_do_escopo, melhor sim ): Quais elogios aparecem nas compras de dezembro de 2017?
+Fora do escopo: 15 execuções (5 perguntas); recusadas 15/15
+   pelo classificador de escopo (fora_do_escopo): 15
+   pelo limiar ou pelo modelo (sem_evidencia):     0
+   respondidas indevidamente:                      0
+   E01: fora_do_escopo x3
+   E02: fora_do_escopo x3
+   E03: fora_do_escopo x3
+   E04: fora_do_escopo x3
+   E05: fora_do_escopo x3
+Perguntas difíceis (só registradas; avalie o texto em resultados.csv):
+   D01 (O que os clientes dizem sobre o aplicativo da loja?): respondida x1
+   D02 (Quais elogios aparecem sobre entregas atrasadas?): fora_do_escopo x1
+   D03 (Entrega): respondida x1
+   D04 (Os clientes reclamam de cobrança duplicada no cartão?): fora_do_escopo x1
+
+=== Tempos das respostas (s, com o modelo já carregado) ===
+Total: mediana 7.5 | média 8.3 | máx. 11.4
+   reescrita: mediana 3.3
+   busca: mediana 0.5
+   geração: mediana 3.3
+
+=== Guardas (respostas geradas) ===
+Respostas: 12 | evidências por resposta (média): 9.1
+Palavras de frequência detectadas: 4 respostas; persistiram após a reescrita: 0
+Citações inexistentes: 0 respostas | respostas sem nenhuma citação: 0
+
+=== Precisão das citações (avaliação manual) ===
+Pares afirmação-citação rotulados: 14 de 69 (amostra aleatória)
+   sustenta: 8 | parcialmente: 6 | não sustenta: 0
+   precisão estrita (só 'sim'):   57%
+   precisão tolerante (sim+parcial): 100%
