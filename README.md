@@ -4,7 +4,7 @@ Projeto do **Tech Challenge – Fase 4 (POSTECH)**. Um sistema de *Retrieval-Aug
 
 Tudo roda **localmente e sem custo**: modelo de linguagem via Ollama, embeddings e banco vetorial na própria máquina.
 
-> **Resumo dos resultados** (detalhes na seção [Avaliação](#avaliação)): na terceira rodada de avaliação, as 25 perguntas válidas foram respondidas e as 11 perguntas fora do escopo foram recusadas nas 3 execuções de cada uma (33 de 33); mediana de 8,1 s por resposta. O classificador de escopo errou duas vezes ao longo do projeto e foi corrigido duas vezes; as duas falhas estão documentadas. O ponto mais fraco medido é a **precisão das citações**: em 60 pares afirmação–citação avaliados manualmente, 45% sustentam diretamente a afirmação, 48% sustentam em parte e 7% não sustentam.
+> **Resumo dos resultados** (detalhes na seção [Avaliação](#avaliação)): na terceira rodada de avaliação, as 25 perguntas válidas foram respondidas e as 11 perguntas fora do escopo foram recusadas nas 3 execuções de cada uma (33 de 33); mediana de 8,1 s por resposta. Das 18 perguntas de exemplo do enunciado, testadas com o texto literal, 17 foram respondidas. O classificador de escopo errou duas vezes ao longo do projeto e foi corrigido duas vezes; as duas falhas estão documentadas. O ponto mais fraco medido é a **precisão das citações**: em 60 pares afirmação–citação avaliados manualmente, 45% sustentam diretamente a afirmação, 48% sustentam em parte e 7% não sustentam.
 
 ## Sumário
 
@@ -209,6 +209,15 @@ O classificador de escopo falhou duas vezes, e cada falha gerou uma correção e
 
 **Como ler estes números.** As perguntas que falharam influenciaram os ajustes, então só as perguntas novas de cada rodada são um teste independente, e são poucas (na rodada 3, 4 válidas e 3 fora do escopo). As 3 repetições de cada pergunta fora do escopo não são independentes entre si. E a falha encontrada depois de um "20 de 20" mostra que uma lista pequena, escrita pelo autor, não garante o comportamento em perguntas novas.
 
+### Perguntas do enunciado
+
+Fora das rodadas, `src/verificar_enunciado.py` roda as 18 perguntas de exemplo que aparecem no enunciado do desafio, com o texto literal, e dois casos de evidência insuficiente. O sistema não foi ajustado depois desse resultado; as respostas completas estão em [`avaliacao/enunciado/resultados.csv`](avaliacao/enunciado/resultados.csv).
+
+- **17 de 18 respondidas.** A única recusada foi "Quais evidências presentes nos comentários sustentam determinado insight?", tratada como fora do escopo. Ela é um modelo de pergunta, sem dizer qual insight; a versão concreta do próprio enunciado ("Quais avaliações sustentam a conclusão de que existem problemas recorrentes relacionados ao prazo de entrega?") foi respondida.
+- **Perguntas sobre frequência.** "Quais problemas aparecem com maior frequência nas avaliações?" e "Quais reclamações relacionadas à entrega aparecem com maior frequência?" foram respondidas com os temas encontrados ("há relatos de..."), sem ordená-los por frequência. É uma decisão do projeto: a resposta vem de até 10 avaliações recuperadas por similaridade, o que não permite afirmar qual tema é o mais frequente na base. Responder a isso de verdade exigiria classificar e contar todas as avaliações.
+- **Evidência insuficiente** (requisito 4). "Quais problemas os clientes relataram em 2019?" não encontrou nenhuma avaliação (a base vai até 2018), e "O que os clientes elogiam?" com a categoria `seguros_e_servicos` encontrou 1 texto acima do limiar, quando o mínimo é 3. As duas terminaram em `sem_evidencia`, com o aviso de que havia filtros ativos.
+- **Guarda de frequência.** Agiu em 6 das 17 respostas. Em 5 a nova versão saiu limpa; em 1 a expressão persistiu ("vários aspectos") e a resposta foi exibida com o aviso. Uma afirmação escapou da guarda: "atrasos e demora na entrega são frequentes" (a lista de expressões não cobre "frequentes" isolado).
+
 ### Tempos (rodada 3, modelo já carregado)
 
 | Etapa | Mediana |
@@ -246,9 +255,26 @@ O verificador automático só confere se o número citado existe. Para medir se 
 
 ## Exemplos de perguntas e respostas
 
-Saídas reais do sistema. As respostas completas das 62 execuções da última rodada estão em `avaliacao/rodada3/resultados.csv`.
+Saídas reais do sistema. Os exemplos 1 e 2 são perguntas do próprio enunciado (`avaliacao/enunciado/resultados.csv`); na interface, cada número citado aparece com o texto da avaliação, como no exemplo 3. As respostas das 62 execuções da última rodada estão em `avaliacao/rodada3/resultados.csv`.
 
-### 1. Pergunta com filtro manual de categoria
+### 1. Pergunta do enunciado com metadado de nota
+
+**Pergunta:** "Quais são os principais problemas relatados nas avaliações com nota baixa?" · **Filtro inferido:** nota negativa (de "nota baixa")
+
+> Há relatos de problemas nas avaliações com nota baixa.
+> - Problemas com a entrega: produto não chegou dentro do prazo informado [6], produto não foi entregue [10], prazo de entrega finalizou e não recebi o produto [5].
+> - Problemas com o produto: produto quebrado [1], produto diferente do anunciado [2], produto fraco [3].
+> - Problemas com o atendimento: péssimo atendimento [4], loja pessima [8].
+
+### 2. Pergunta do enunciado sobre frequência
+
+**Pergunta:** "Quais reclamações relacionadas à entrega aparecem com maior frequência?" · **Filtro inferido:** nota negativa (de "reclamações")
+
+> A entrega é um ponto crítico de reclamação. Há relatos de atrasos na entrega [1][4][6][9][10], produtos que não chegaram [3][5][8], e entregas incompletas [8]. Alguns produtos chegaram quebrados ou com defeito [2][7].
+
+A resposta lista os temas com as avaliações que os sustentam, mas não diz qual é o mais frequente (ver [Perguntas do enunciado](#perguntas-do-enunciado)).
+
+### 3. Filtro manual de categoria, com as evidências
 
 **Pergunta:** "O que os clientes elogiam?" · **Filtros:** nota positiva (inferida de "elogiam") + categoria `bebes` (escolhida na interface)
 
@@ -269,18 +295,17 @@ Saídas reais do sistema. As respostas completas das 62 execuções da última r
 | 9 | 5 | 2018-08 | 0,858 | Top. Produto atende as necessidades |
 | 10 | 4 | 2018-03 | 0,878 | Produto muito bom, chegou antes do prazo! |
 
-### 2. Pergunta com período
+### 4. Evidência insuficiente
 
-**Pergunta:** "Quais problemas apareceram em março de 2018?" · **Filtros inferidos:** nota negativa; compra em 2018-03
+**Pergunta:** "O que os clientes elogiam?" · **Filtros:** nota positiva (inferida) + categoria `seguros_e_servicos` (manual) · **Status:** `sem_evidencia`
 
-> Há relatos de problemas em março de 2018.
-> - Falta de entrega do produto [10].
-> - Entrega atrasada [9].
-> - Produto entregue com defeito [8].
+> Não encontrei evidências suficientes nas avaliações para responder a essa pergunta.
+>
+> Havia filtros ativos (nota positiva; categoria seguros_e_servicos). Tente remover algum deles ou ampliar o período.
 
-(Saída de uma execução durante o desenvolvimento. A citação [10], "Produto não foi entregue no prazo... solicito o estorno", sustenta só em parte a "falta de entrega"; ver [Limitações](#limitações).)
+A melhor similaridade foi 0,853, mas só 1 texto distinto ficou acima do limiar de 0,85 (o mínimo é 3), então o modelo de resposta nem foi chamado. A mesma pergunta sem o filtro de categoria é respondida.
 
-### 3. Pergunta fora do escopo
+### 5. Pergunta fora do escopo
 
 **Pergunta:** "Qual a previsão do tempo para amanhã?" · **Status:** `fora_do_escopo` (2,1 s, sem busca)
 
@@ -308,7 +333,8 @@ Na rodada 3, as 11 perguntas fora do escopo (faturamento, CEO da empresa, aprend
 - **"Principais" não é "mais frequentes".** A resposta descreve uma amostra de avaliações recuperadas (as mais parecidas com a pergunta), não uma estatística. O sistema evita afirmar proporções, mas não as calcula.
 - **Citações.** Só 45% dos pares sustentam diretamente a afirmação (intervalo de 33% a 58%); 48% sustentam em parte e 7% não sustentam. O verificador automático só confere a existência do número. Uma verificação por tópico com o LLM seria o próximo passo.
 - **Perguntas com premissa que as avaliações não confirmam.** "Quais elogios aparecem sobre entregas atrasadas?" foi respondida com "Há relatos de elogios sobre entregas atrasadas", mas os tópicos e as citações eram sobre entregas **no prazo**. O modelo repetiu a premissa da pergunta. Uma regra de prompt para apontar premissas não confirmadas é uma melhoria conhecida e não implementada.
-- **Classificador baseado em LLM.** A decisão de escopo errou na rodada 1 e de novo depois da rodada 2, numa pergunta que a lista de avaliação não cobria; é provável que existam outras formulações válidas que ele ainda recuse. O motivo que ele escreve também não é confiável: numa pergunta sobre previsão do tempo, recusou corretamente, mas com o motivo "pede um número", copiado de um exemplo do prompt. O limiar de 0,85 é uma segunda camada frágil, calibrada com apenas 30 perguntas.
+- **Guarda de frequência por lista de palavras.** Ela só reconhece as expressões previstas. Nas perguntas do enunciado, "atrasos e demora na entrega são frequentes" passou sem ser detectada, e em outra resposta a expressão persistiu depois da reescrita (a resposta foi exibida com aviso).
+- **Classificador baseado em LLM.** A decisão de escopo errou na rodada 1 e de novo depois da rodada 2, numa pergunta que a lista de avaliação não cobria, e recusou 1 das 18 perguntas literais do enunciado; é provável que existam outras formulações válidas que ele ainda recuse. O motivo que ele escreve também não é confiável: numa pergunta sobre previsão do tempo, recusou corretamente, mas com o motivo "pede um número", copiado de um exemplo do prompt. O limiar de 0,85 é uma segunda camada frágil, calibrada com apenas 30 perguntas.
 - **Perguntas do domínio sem evidência.** "O que os clientes dizem sobre o aplicativo da loja?" foi respondida nas rodadas 1 e 3 e recusada como "fora do escopo" na rodada 2: o comportamento muda quando o prompt do classificador muda. Na rodada 3, a resposta falou de rapidez da entrega e de satisfação com os produtos, com citações, sem mencionar aplicativo e sem avisar que as avaliações recuperadas não tratam dele. O sistema não inventou nada sobre o aplicativo, mas respondeu a outra pergunta: as frases geradas na reescrita são genéricas, recuperam avaliações acima do limiar, e o modelo não aplicou a regra de recusar quando as avaliações não respondem à pergunta. "Os clientes reclamam de cobrança duplicada no cartão?" foi recusada como "fora do escopo" nas três rodadas, embora seja um assunto do domínio, talvez sem avaliações que o sustentem. A recusa é segura, mas a mensagem não distingue "assunto alheio" de "sem evidência".
 - **Escala da avaliação.** 40 perguntas distintas na rodada 3 (23 na rodada 1 e 32 na rodada 2), escolhidas pelo autor, e 60 citações avaliadas por uma só pessoa.
 - **Viés da base.** Só 41% das avaliações têm comentário, e comentam 77% dos clientes de nota 1 contra 36% dos de nota 5.
@@ -373,6 +399,7 @@ python src/calibrar_limiar.py                             # calibração do limi
 python src/avaliar.py --executar --rodada minha_rodada    # roda as 40 perguntas de teste (62 execuções)
 python src/avaliar.py --rotular --rodada minha_rodada     # avaliação manual das citações (opcional)
 python src/avaliar.py --resumo --rodada minha_rodada      # números finais
+python src/verificar_enunciado.py                         # as 18 perguntas do enunciado
 ```
 
 ## Estrutura do repositório
@@ -393,10 +420,12 @@ voc-rag-olist/
 │   ├── filtros.py                 filtros inferidos da pergunta (com autotestes)
 │   ├── rag.py                     pipeline RAG e linha de comando
 │   ├── app.py                     interface Streamlit
-│   └── avaliar.py                 avaliação (comportamento, tempos, citações)
+│   ├── avaliar.py                 avaliação (comportamento, tempos, citações)
+│   └── verificar_enunciado.py     roda as perguntas literais do enunciado
 ├── avaliacao/                     resultados da rodada 1
 │   ├── rodada2/                   resultados, citações rotuladas e resumo da rodada 2
-│   └── rodada3/                   resultados e resumo da rodada 3 (classificador final)
+│   ├── rodada3/                   resultados e resumo da rodada 3 (classificador final)
+│   └── enunciado/                 respostas às perguntas literais do enunciado
 ├── docs/img/                      capturas de tela
 └── data/                          (não versionada) CSVs, base processada e índice
 ```
