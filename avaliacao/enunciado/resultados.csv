@@ -1,0 +1,72 @@
+﻿id,secao,pergunta,filtros_manuais,status,filtros,classificador,melhor_similaridade,textos_unicos_acima_limiar,evidencias,citacoes_validas,freq_detectada,freq_apos_reescrita,avisos,t_total,resposta
+P01,Introducao,Quais são os principais motivos de insatisfação dos clientes?,,respondida,nota negativa,ESCOPO: DENTRO - motivos de insatisfação dos clientes  ,0.877,76,10,1;4;5;6;7;8;9;10,varios,,,10.9,"Há relatos de insatisfação dos clientes relacionados a diversos fatores.  
+- Falta de respeito com o cliente [1][6][10]  
+- Problemas na entrega, como atrasos e produto não entregue [5][7]  
+- Produto com defeito, diferente do anunciado ou com material inferior ao esperado [4][8][9]"
+P02,Introducao,Quais problemas aparecem com maior frequência nas avaliações?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre problemas  ,0.879,73,10,1;2;4;5;6;7;8;9;10,,,,7.3,"Há relatos de problemas nas avaliações.  
+- Problemas com a entrega: [1][5][7][10]  
+- Produto com defeito ou diferente do anunciado: [2][4][6][9][10]  
+- Qualidade do produto insatisfatória: [4][8]"
+P03,Introducao,O que os consumidores mais valorizam em sua experiência?,,respondida,nota positiva,ESCOPO: DENTRO - o que os clientes destacam  ,0.887,73,10,1;2;3;4;6;7;8;10,principalmente,,,10.5,"Há relatos de que os consumidores valorizam aspectos como qualidade do produto, atendimento e entrega rápida.  
+- Qualidade do produto [4][8]  
+- Atendimento satisfatório [3][7][10]  
+- Entrega rápida e eficiente [1][2][6]"
+P04,Introducao,"Quais padrões podem ser identificados em relatos relacionados à entrega, qualidade dos produtos ou atendimento?",,respondida,sem filtros,ESCOPO: DENTRO - relatos de clientes sobre padrões  ,0.884,77,10,1;2;3;4;6;7;8;10,frequentemente;geralmente,,,10.4,"Há relatos de satisfação com a entrega, a qualidade dos produtos e o atendimento.  
+Há relatos de entrega rápida e sem problemas [2][6][10].  
+Há relatos de produtos que chegaram conforme descrito [1][3][7].  
+Há relatos de atendimento considerado excelente [4][8]."
+P05,Introducao,Quais evidências presentes nos comentários sustentam determinado insight?,,fora_do_escopo,sem filtros,ESCOPO: FORA - pede um número,,,0,,,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+P06,Problema de negocio,Quais são os principais problemas relatados pelos clientes?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre problemas  ,0.877,59,10,1;2;3;4;5;6;7;9;10,,,,7.9,"Há relatos de problemas pelos clientes:  
+- Erros na entrega, como produtos não chegando completos ou com danos [1][5][9].  
+- Produtos defeituosos ou que não funcionam corretamente [2][6][10].  
+- Falta de itens no produto recebido [3][7].  
+- Qualidade fraca do produto [4]."
+P07,Problema de negocio,Quais reclamações relacionadas à entrega aparecem com maior frequência?,,respondida,nota negativa,ESCOPO: DENTRO - reclamações sobre entrega  ,0.887,73,10,1;2;3;4;5;6;7;8;9;10,,,,7.4,"A entrega é um ponto crítico de reclamação. Há relatos de atrasos na entrega [1][4][6][9][10], produtos que não chegaram [3][5][8], e entregas incompletas [8]. Alguns produtos chegaram quebrados ou com defeito [2][7]."
+P08,Problema de negocio,O que os clientes mais elogiam em suas experiências de compra?,,respondida,nota positiva,ESCOPO: DENTRO - elogios em experiências de compra  ,0.896,102,10,1;2;3;4;5;6;7;8;10,,,,7.7,"A experiência de compra é elogiada por diversos aspectos.  
+- Entrega rápida [1][2][7][8][10]  
+- Qualidade dos produtos [1][4][6][7]  
+- Atendimento excelente [3][8]  
+- Compra fácil e site recomendado [5][10]"
+P09,Problema de negocio,Quais problemas são relatados por clientes insatisfeitos?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre problemas  ,0.877,57,10,1;2;4;5;6;9;10,,,,7.4,"Há relatos de problemas por clientes insatisfeitos:  
+1. Erros na entrega e produto não chega completo [1][6][10].  
+2. Produto chega danificado ou não funciona [2][4][5].  
+3. Falta de atendimento e respostas [9].  
+4. Entregas atrasadas [10]."
+P10,Problema de negocio,Existem padrões recorrentes nas avaliações relacionadas à qualidade dos produtos?,,respondida,sem filtros,ESCOPO: DENTRO - padrões em avaliações de qualidade  ,0.878,84,10,1;2;3;5;6;10,,,,7.4,"Há relatos de padrões recorrentes nas avaliações relacionadas à qualidade dos produtos.  
+- Alguns clientes destacam a qualidade dos produtos como excelente ou conforme anunciado [2][5][6].  
+- Outros relatam problemas com a qualidade, como produtos com defeito ou de péssima qualidade [1][10].  
+- Há menção a entregas incompletas ou com erros, mas isso não está diretamente relacionado à qualidade dos produtos [3]."
+P11,Exemplos de exploracao,Quais são os principais problemas relatados pelos clientes em suas avaliações?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes em avaliações  ,0.879,74,10,3;4;5;6;7;8;9;10,,,,7.4,"Há relatos de problemas pelos clientes em suas avaliações.  
+- Problemas com a qualidade do produto: [3][4][7]  
+- Atendimento insatisfatório: [5][9]  
+- Atrasos na entrega: [6][10]  
+- Produto não atende às expectativas: [3][4][8]"
+P12,Exemplos de exploracao,O que os clientes relatam sobre problemas relacionados à entrega?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre entrega  ,0.895,98,10,3;5;6;7;8;9;10,,,,7.4,"Há relatos de problemas relacionados à entrega.  
+- Atraso na entrega [7].  
+- Falta de informações sobre o andamento da entrega [9].  
+- Entrega de produtos danificados ou quebrados [3][5][8][10].  
+- Envio de produtos errados [6]."
+P13,Exemplos de exploracao,Quais aspectos da experiência de compra são mais elogiados pelos clientes?,,respondida,nota positiva,ESCOPO: DENTRO - aspectos elogiados nas avaliações  ,0.892,102,10,4;5;6;8;9;10,varios,varios,"A resposta ainda contém expressões de frequência (varios). As avaliações são uma amostra recuperada, não uma estatística.",11.4,"A experiência de compra é elogiada por vários aspectos.  
+- **Entrega rápida e segura**: há relatos de entrega rápida e sem problemas [4][6][9].  
+- **Qualidade do produto**: há relatos de produto de excelente qualidade [6][8].  
+- **Atendimento excelente**: há relatos de atendimento excelente e preciso [5][10]."
+P14,Exemplos de exploracao,Quais padrões podem ser identificados nas avaliações de clientes insatisfeitos?,,respondida,nota negativa,ESCOPO: DENTRO - padrões de reclamações  ,0.885,68,10,2;3;4;5;6;7;8;9;10,,,,7.4,"Há relatos de problemas com a entrega e qualidade do produto.  
+- Atrasos e demora na entrega são frequentes [3][5][7][9].  
+- Produtos chegaram incompletos ou com defeito [2][6][8][10].  
+- Atendimento foi considerado péssimo [4]."
+P15,Exemplos de exploracao,Quais avaliações sustentam a conclusão de que existem problemas recorrentes relacionados ao prazo de entrega?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre prazo de entrega  ,0.872,51,10,1;2;4;6;8;10,,,,6.9,"Há relatos de problemas recorrentes relacionados ao prazo de entrega.  
+[1][2][4][6][8][10]"
+P16,Metadados,Quais são os principais problemas relatados nas avaliações com nota baixa?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes com notas baixas  ,0.885,69,10,1;2;3;4;5;6;8;10,,,,8.4,"Há relatos de problemas nas avaliações com nota baixa.  
+- Problemas com a entrega: produto não chegou dentro do prazo informado [6], produto não foi entregue [10], prazo de entrega finalizou e não recebi o produto [5].  
+- Problemas com o produto: produto quebrado [1], produto diferente do anunciado [2], produto fraco [3].  
+- Problemas com o atendimento: péssimo atendimento [4], loja pessima [8]."
+P17,Metadados,O que os clientes mais elogiam em determinadas categorias de produtos?,,respondida,nota positiva,ESCOPO: DENTRO - elogios em categorias de produtos  ,0.881,95,10,1;2;3;4;5;6;7;8;9;10,principalmente,,,12.4,"Há relatos de elogios em diferentes aspectos dos produtos e da experiência de compra.  
+- Qualidade dos produtos: há relatos de que os produtos são de excelente qualidade [1][3][4][6][10].  
+- Entrega rápida e segura: há relatos de que a entrega foi bem antes do prazo e com embalagem certinha [1][2][5][6][9].  
+- Recomendação geral: há relatos de que os clientes recomendam o produto e a loja [1][4][7][8][10]."
+P18,Metadados,Quais temas aparecem nas avaliações relacionadas a experiências de entrega insatisfatórias?,,respondida,nota negativa,ESCOPO: DENTRO - relatos de clientes sobre entrega  ,0.893,64,10,1;2;3;4;5;7;9;10,frequentemente,,,10.7,"Há relatos de experiências de entrega insatisfatórias.  
+Há relatos de atraso na entrega [2][4][10].  
+Há relatos de produtos não entregues [1][5][9].  
+Há relatos de produtos danificados ou mal embalados [3][7]."
+S01,Requisito 4 (periodo fora da base),Quais problemas os clientes relataram em 2019?,,sem_evidencia,nota negativa; compra de 2019-01 a 2019-12,ESCOPO: DENTRO - relatos de clientes em um período  ,,0,0,,,,Havia filtros ativos (nota negativa; compra de 2019-01 a 2019-12). Tente remover algum deles ou ampliar o período.,3.6,Não encontrei evidências suficientes nas avaliações para responder a essa pergunta.
+S02,Requisito 4 (categoria com poucas avaliacoes),O que os clientes elogiam?,{'categoria': 'seguros_e_servicos'},sem_evidencia,nota positiva; categoria seguros_e_servicos,ESCOPO: DENTRO - elogios dos clientes  ,0.853,1,0,,,,Havia filtros ativos (nota positiva; categoria seguros_e_servicos). Tente remover algum deles ou ampliar o período.,3.4,Não encontrei evidências suficientes nas avaliações para responder a essa pergunta.
