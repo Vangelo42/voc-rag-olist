@@ -38,7 +38,8 @@ Requisitos principais:
 voc-rag\
   .venv\  data\ (CSVs Kaggle, processed\, chroma_db\)
   avaliacao\            (rodada 1: resultados.csv, citacoes_para_rotular.csv, resumo.txt)
-    rodada2\            (idem, rodada 2 = a que vale para o README)
+    rodada2\            (idem; rodada 2 = a das CITACOES rotuladas)
+    rodada3\            (rodada 3 = classificador final; numeros de comportamento e tempos do README)
   docs\img\             (capturas de tela para o README: resposta.png, filtros.png, fora_do_escopo.png)
   explorar.py
   README.md  requirements.txt  CONTEXTO.md
@@ -63,7 +64,7 @@ Ordem para reconstruir: `preparar_base.py` -> `enriquecer_metadados.py` -> `inde
 - Filtros inferidos (`filtros.py`, regras, 21 autotestes, `python src/filtros.py`): "problemas/reclamacoes/insatisfeitos" -> negativa; "elogiam" -> positiva; "nota N"; "atraso" -> atrasada; "nao chegou" -> nao_entregue; anos/meses. Na duvida, sem filtro. Categoria: o LLM sugere (so entre as 73 reais), `validar_categoria` descarta invalidas. Filtros manuais mandam sobre os inferidos.
 
 ## Pipeline (`rag.py` v4)
-1. Uma chamada do LLM: linha 1 `ESCOPO: DENTRO|FORA - motivo`, 3-5 frases no estilo de avaliacoes, `CATEGORIA: x|nenhuma`. O modelo as vezes responde so `FORA`; o parser (`saida_indica_fora_do_escopo`) olha so o inicio da saida. Saida bruta em `--debug` (`saida_reescrita`).
+1. Uma chamada do LLM: linha 1 `ESCOPO: DENTRO|FORA - motivo`, 3-5 frases no estilo de avaliacoes, `CATEGORIA: x|nenhuma`. Regra do prompt (versao de 14/11): ano, mes, nota e categoria NAO tiram a pergunta do escopo; FORA = assunto alheio ou pergunta cuja resposta e um NUMERO/dado da empresa; dois exemplos no prompt (um de cada lado). O motivo escrito pelo modelo nao e confiavel (copia o dos exemplos). O modelo as vezes responde so `FORA`; o parser (`saida_indica_fora_do_escopo`) olha so o inicio da saida. Saida bruta em `--debug` (`saida_reescrita`).
 2. Busca de 30 candidatos por consulta (original + frases) com `where` dos filtros.
 3. Limiar 0,85 + >= 3 textos unicos, senao `sem_evidencia` (com aviso se havia filtros).
 4. Selecao de ate 10 evidencias por revezamento, ignorando repetidos e quase iguais (cosseno >= 0,93).
@@ -80,8 +81,11 @@ Modos: `--executar`, `--rotular`, `--revisar [--rotulo nao]`, `--resumo`; `--rod
 - **Rodada 2** (32 perguntas, 48 execucoes): validas 20/20; fora do escopo 24/24 (8 perguntas x 3) todas pelo classificador; novas: validas 6/6, fora 9/9. Dificeis: D01 e D04 `fora_do_escopo` (mensagem imprecisa: sao do dominio, talvez sem evidencia); D02 e D03 respondidas.
 - Tempos (rodada 2): mediana 7,5 s (media 8,3, max 12,1); reescrita 3,5, busca 0,6, geracao 3,5; recusa ~2,4 s. 1a chamada depois de ligar o PC ~26 s.
 - Guardas (rodada 2, 22 respostas): evidencias por resposta 9,5; frequencia detectada em 5, nenhuma persistiu; 0 citacoes inexistentes; 0 respostas sem citacao.
-- **Citacoes (rodada 2, 60 pares rotulados por 1 pessoa, apos revisao com criterio escrito)**: sustenta 27 (45%, IC 33-58%), parcial 29 (48%, 36-61%), nao 4 (7%, 3-16%); sustenta+parcial 56 (93%, 84-97%). Primeira passada (antes da revisao): 30%/48%/22% -> criterio sensivel ao avaliador. ATENCAO: confira se `python src/avaliar.py --resumo --rodada rodada2` mostra "60 de 165 ... sustenta 27 | parcial 29 | nao 4"; um comando meu corrigiu 3 linhas por engano e o 2o comando de reparo (`d.index>=60` -> vazio) precisa ter sido rodado. Se os numeros do resumo forem outros, atualizar o README (secao Avaliacao, resumo no topo e Limitacoes).
+- **Citacoes (rodada 2, 60 pares rotulados por 1 pessoa, apos revisao com criterio escrito)**: sustenta 27 (45%, IC 33-58%), parcial 29 (48%, 36-61%), nao 4 (7%, 3-16%); sustenta+parcial 56 (93%, 84-97%). Primeira passada (antes da revisao): 30%/48%/22% -> criterio sensivel ao avaliador. Numeros conferidos no resumo de 07/11 (60 de 165; 27/29/4).
 - Falha conhecida D02: pergunta com premissa falsa ("elogios sobre entregas atrasadas") foi respondida repetindo a premissa, com citacoes de entregas no prazo.
+- **Falha depois da rodada 2 (14/11):** "Quais reclamacoes sobre atraso na entrega apareceram em 2017?" (botao de exemplo da interface, fora da lista) foi recusada em 5/5 execucoes com o motivo "pedidos de contagens e filtros de datas". Corrigido no prompt do classificador (ver Pipeline).
+- **Rodada 3** (40 perguntas, 62 execucoes; `avaliacao\rodada3\`): validas 25/25; fora do escopo 33/33 (11 perguntas x 3), todas pelo classificador; novas da rodada 3 (V22-V25, E09-E11, nao usadas no ajuste): validas 4/4, fora 9/9 execucoes; V21 (a que motivou o ajuste) respondida. Dificeis: D01, D02 e D03 respondidas, D04 `fora_do_escopo` (D01 mudou: respondida na 1, recusada na 2, respondida na 3). Tempos: mediana 8,1 s (media 8,8, max 13,2); reescrita 3,7, busca 0,4, geracao 3,8; recusa ~2,4 s. Guardas (28 respostas): 9,2 evidencias por resposta; frequencia detectada em 6, nenhuma persistiu; 0 citacoes inexistentes; 0 sem citacao. Citacoes NAO foram rotuladas de novo (prompt de geracao igual): vale a medida da rodada 2.
+- Falha conhecida D01 (rodada 3): "aplicativo da loja" foi respondida com entrega rapida e satisfacao com produtos, sem citar aplicativo e sem avisar que o tema nao aparece: resposta fora do assunto (nao inventou, mas nao respondeu a pergunta). Ja esta nas Limitacoes do README.
 
 ## Problemas conhecidos / limitacoes (ja no README)
 Citacoes so 45% sustentam por inteiro; premissa falsa; classificador LLM variavel e limiar fragil (0,849 vs 0,85 no caso da previsao do tempo); mensagem "fora do escopo" imprecisa para assuntos do dominio sem evidencia; "principais" = mais parecidas, nao mais frequentes; viés de quem comenta; categorias sobrepostas; avaliacao pequena e por 1 avaliador.
@@ -89,16 +93,16 @@ Citacoes so 45% sustentam por inteiro; premissa falsa; classificador LLM variave
 ## Status
 - [x] Fases 0 a 3 (Ollama, base, indexacao, pipeline v2).
 - [x] Fase 4: v3 (guarda de frequencia), metadados (categoria, entrega, periodo), filtros inferidos, rag v4, interface Streamlit (testada com print em 07/11).
-- [x] Fase 5: avaliacao rodadas 1 e 2 (citacoes rotuladas; conferir numeros finais, ver acima).
-- [x] README.md e requirements.txt escritos (07/11); falta conferir imagens e numeros finais.
-- [ ] Commit/push de tudo (`git add src/ avaliacao/ docs/ README.md requirements.txt CONTEXTO.md`).
+- [x] Fase 5: avaliacao rodadas 1, 2 e 3 (citacoes rotuladas na rodada 2: 27/29/4 de 60, conferido em 07/11).
+- [x] README.md e requirements.txt escritos (07/11) e README atualizado com a rodada 3 (14/11); falta conferir as imagens no GitHub.
+- [ ] Commit/push de tudo (`git add src/ avaliacao/ README.md requirements.txt CONTEXTO.md`; `docs/` so depois de criar `docs\img\`).
 - [ ] Capturas de tela em `docs\img\` (resposta.png, filtros.png, fora_do_escopo.png) ou remover as 3 linhas de imagem do README.
 - [ ] Fase 7: video de ate 7 min (roteiro: problema -> arquitetura -> pipeline -> demo com filtros e evidencias -> recusa -> avaliacao e limitacoes -> desafios/decisoes).
 - [ ] Trilha Databricks (+10 pontos) em paralelo (comprovante pela Databricks Academy).
 - [ ] Opcional (se sobrar tempo, ~12/11): rodada 3 com melhorias de prompt (max. 2 citacoes por afirmacao, usar palavras das avaliacoes, apontar premissas nao confirmadas) e comparar com a rodada 2.
 
 ## Proximo passo
-1. Conferir o resumo da rodada 2 e o commit.
+1. Commit e push do rag.py, avaliar.py, avaliacao\rodada3, README e CONTEXTO de 14/11.
 2. Fazer as capturas de tela; abrir o README no GitHub e conferir imagens, tabelas e o diagrama mermaid.
 3. Roteiro e gravacao do video (ate 7 min); ensaiar com a interface aberta e o Ollama ligado.
 4. Trilha Databricks.
@@ -108,3 +112,4 @@ Citacoes so 45% sustentam por inteiro; premissa falsa; classificador LLM variave
 - Data / quem trabalhou / o que foi feito / o que ficou pendente:
 - 02/11/2026 | Claude (chat original) | Fases 0 a 3 concluidas e testadas | Pendente: v3 do rag.py, Fase 4 em diante.
 - 07/11/2026 | Claude (2o chat) | v3/v4 do rag.py, metadados, filtros, Streamlit, avaliacao (rodadas 1 e 2), README, requirements, CONTEXTO | Pendente: conferir numeros de citacoes, capturas, commit, video, Databricks.
+- 14/11/2026 | Claude (2o chat) | Falha do classificador com periodo (botao de exemplo) corrigida; rodada 3 (25/25 e 33/33); README, CONTEXTO e roteiro atualizados | Pendente: capturas, commit, video (ate 7 min), Databricks; entrega 17/11.

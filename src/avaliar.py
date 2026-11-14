@@ -15,6 +15,7 @@ Uso (a partir da pasta voc-rag, com o ambiente virtual ativo e o Ollama aberto):
     python src/avaliar.py --resumo
 Rodadas: sem --rodada os arquivos ficam em avaliacao/ (rodada 1); com --rodada rodada2 ficam em
 avaliacao/rodada2/ (use depois de mudar o sistema, para comparar antes e depois).
+A lista cresceu a cada rodada: 23 perguntas na 1, 32 na 2 e 40 na 3.
 """
 import argparse
 import random
@@ -68,6 +69,11 @@ PERGUNTAS = [
     ("V19", "valida", "O que as avaliações dizem sobre a embalagem dos produtos?"),
     ("V20", "valida", "Quais problemas aparecem nas avaliações de clientes que receberam "
                       "o pedido com atraso?"),
+    ("V21", "valida", "Quais reclamações sobre atraso na entrega apareceram em 2017?"),
+    ("V22", "valida", "Quais elogios sobre a entrega surgiram em 2018?"),
+    ("V23", "valida", "Que problemas com os produtos os clientes relataram em janeiro de 2018?"),
+    ("V24", "valida", "Quais críticas ao atendimento apareceram nas compras de novembro de 2017?"),
+    ("V25", "valida", "O que os clientes de 2017 dizem sobre a qualidade dos produtos?"),
     ("E01", "fora_escopo", "Qual foi o faturamento da empresa em 2017?"),
     ("E02", "fora_escopo", "Quem é o CEO da Olist?"),
     ("E03", "fora_escopo", "Explique como funciona o aprendizado de máquina."),
@@ -76,6 +82,9 @@ PERGUNTAS = [
     ("E06", "fora_escopo", "Quantas avaliações têm nota 5?"),
     ("E07", "fora_escopo", "Escreva um poema sobre a Olist."),
     ("E08", "fora_escopo", "Qual o prazo de entrega para o CEP 69000-000?"),
+    ("E09", "fora_escopo", "Quantas reclamações de atraso houve em 2017?"),
+    ("E10", "fora_escopo", "Qual foi o mês com mais vendas em 2018?"),
+    ("E11", "fora_escopo", "Qual a nota média das avaliações em 2018?"),
     ("D01", "dificil", "O que os clientes dizem sobre o aplicativo da loja?"),
     ("D02", "dificil", "Quais elogios aparecem sobre entregas atrasadas?"),
     ("D03", "dificil", "Entrega"),
@@ -85,6 +94,11 @@ PERGUNTAS = [
 # Perguntas acrescentadas DEPOIS da rodada 1, sem ajustar o sistema a elas: mesmo tipo das que
 # falharam (periodo, nota, "nas avaliacoes"), mas com outras palavras. O resumo as separa.
 NOVAS = {"V15", "V16", "V17", "V18", "V19", "V20", "E06", "E07", "E08"}
+# Rodada 3: V21 foi recusada por engano depois da rodada 2 (botao de exemplo da interface) e
+# motivou o ajuste do classificador; as NOVAS_R3 foram escritas antes de rodar e nao foram
+# usadas no ajuste (periodo + relato deve ser respondido; periodo + numero deve ser recusado).
+AJUSTE_R3 = {"V21"}
+NOVAS_R3 = {"V22", "V23", "V24", "V25", "E09", "E10", "E11"}
 
 
 # --- Modo 1: executar -----------------------------------------------------------------
@@ -257,10 +271,20 @@ def resumo() -> None:
     nv = df[df["id"].isin(NOVAS)]
     if len(nv):
         nv_v, nv_e = nv[nv["tipo"] == "valida"], nv[nv["tipo"] == "fora_escopo"]
-        p("Só as perguntas novas (não usadas para ajustar o sistema):")
+        p("Perguntas novas da rodada 2 (não usadas para ajustar o sistema):")
         p(f"   válidas respondidas: {(nv_v['status'] == 'respondida').sum()}/{len(nv_v)} | "
           f"fora do escopo recusadas: "
           f"{nv_e['status'].isin(['fora_do_escopo', 'sem_evidencia']).sum()}/{len(nv_e)} execuções")
+    n3 = df[df["id"].isin(NOVAS_R3)]
+    if len(n3):
+        n3_v, n3_e = n3[n3["tipo"] == "valida"], n3[n3["tipo"] == "fora_escopo"]
+        p("Perguntas novas da rodada 3 (não usadas para ajustar o sistema):")
+        p(f"   válidas respondidas: {(n3_v['status'] == 'respondida').sum()}/{len(n3_v)} | "
+          f"fora do escopo recusadas: "
+          f"{n3_e['status'].isin(['fora_do_escopo', 'sem_evidencia']).sum()}/{len(n3_e)} execuções")
+    aj = df[df["id"].isin(AJUSTE_R3)]
+    for _, r in aj.iterrows():
+        p(f"Pergunta que motivou o ajuste da rodada 3: {r['id']} -> {r['status']}")
     d_ = df[df["tipo"] == "dificil"]
     if len(d_):
         p("Perguntas difíceis (só registradas; avalie o texto em resultados.csv):")

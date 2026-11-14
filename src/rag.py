@@ -56,13 +56,18 @@ PROMPT_REESCRITA = """Você ajuda a buscar avaliações de clientes de uma loja 
 Dada a PERGUNTA de um gestor, responda neste formato exato:
 
 Linha 1: ESCOPO: DENTRO - <motivo em até 8 palavras>   ou   ESCOPO: FORA - <motivo em até 8 palavras>
-- DENTRO: perguntas sobre o que os clientes escreveram nas avaliações: compras, entrega, \
+- DENTRO: a pergunta quer saber O QUE os clientes escreveram nas avaliações: compras, entrega, \
 produtos, vendedores, atendimento, qualidade, elogios, reclamações, problemas, padrões e \
-experiência dos clientes. Também são DENTRO as perguntas que citam notas, categorias de \
-produto ou períodos (meses e anos): são apenas filtros sobre as avaliações.
+experiência dos clientes.
+- Ano, mês, nota ou categoria de produto na pergunta NÃO a tiram do escopo: o sistema filtra \
+as avaliações por eles. Uma pergunta sobre o que os clientes escreveram em um período é DENTRO.
 - FORA: assuntos sem relação com avaliações de clientes (esportes, notícias, receitas, \
-programação, conhecimentos gerais...) ou pedidos de números totais, contagens, faturamento, \
-preços, telefones, endereços ou dados cadastrais, que não aparecem nas avaliações.
+programação, conhecimentos gerais...) ou perguntas cuja resposta é um NÚMERO ou um dado da \
+empresa que não está escrito nas avaliações: quantos, quanto, qual o total, média, \
+faturamento, preços, telefones, endereços ou dados cadastrais.
+Exemplos:
+"Que queixas sobre troca e devolução surgiram em maio de 2017?" -> ESCOPO: DENTRO - relatos de clientes em um período
+"Qual foi o valor médio do frete em 2017?" -> ESCOPO: FORA - pede um número
 Na dúvida, escolha DENTRO.
 Se for FORA, pare na linha 1 e não escreva mais nada.
 

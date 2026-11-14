@@ -4,7 +4,7 @@ Projeto do **Tech Challenge – Fase 4 (POSTECH)**. Um sistema de *Retrieval-Aug
 
 Tudo roda **localmente e sem custo**: modelo de linguagem via Ollama, embeddings e banco vetorial na própria máquina.
 
-> **Resumo dos resultados** (detalhes na seção [Avaliação](#avaliação)): em 20 perguntas válidas, 20 foram respondidas; em 8 perguntas fora do escopo (3 execuções cada), 24 de 24 execuções foram recusadas; mediana de 7,5 s por resposta. O ponto mais fraco medido é a **precisão das citações**: em 60 pares afirmação–citação avaliados manualmente, 45% sustentam diretamente a afirmação, 48% sustentam em parte e 7% não sustentam.
+> **Resumo dos resultados** (detalhes na seção [Avaliação](#avaliação)): na terceira rodada de avaliação, as 25 perguntas válidas foram respondidas e as 11 perguntas fora do escopo foram recusadas nas 3 execuções de cada uma (33 de 33); mediana de 8,1 s por resposta. O classificador de escopo errou duas vezes ao longo do projeto e foi corrigido duas vezes; as duas falhas estão documentadas. O ponto mais fraco medido é a **precisão das citações**: em 60 pares afirmação–citação avaliados manualmente, 45% sustentam diretamente a afirmação, 48% sustentam em parte e 7% não sustentam.
 
 ## Sumário
 
@@ -188,43 +188,48 @@ Com a regra escolhida, 94% das válidas foram respondidas (15/16) e 100% das for
 
 ## Avaliação
 
-`src/avaliar.py` roda uma lista fixa de perguntas, grava os resultados e ajuda a medir a precisão das citações. Os resultados completos (inclusive o texto de cada resposta) estão em [`avaliacao/`](avaliacao/) (rodada 1) e [`avaliacao/rodada2/`](avaliacao/rodada2/).
+`src/avaliar.py` roda uma lista fixa de perguntas, grava os resultados e ajuda a medir a precisão das citações. Os resultados completos (inclusive o texto de cada resposta e a saída bruta do classificador) estão em [`avaliacao/`](avaliacao/) (rodada 1), [`avaliacao/rodada2/`](avaliacao/rodada2/) e [`avaliacao/rodada3/`](avaliacao/rodada3/).
 
 **Perguntas:** válidas (V), fora do escopo (E) e difíceis (D). As fora do escopo rodam 3 vezes, porque o LLM varia. As difíceis são só registradas.
 
-### Duas rodadas
+### Três rodadas
 
-A **rodada 1** revelou uma falha no classificador de escopo; ele foi corrigido e a **rodada 2** reavalia o sistema corrigido, com perguntas novas acrescentadas (V15–V20, E06–E08), que não foram usadas para ajustar o sistema.
+O classificador de escopo falhou duas vezes, e cada falha gerou uma correção e uma nova rodada, com perguntas novas que não foram usadas no ajuste.
 
-| | Rodada 1 | Rodada 2 |
-|---|---|---|
-| Perguntas válidas respondidas | 10 de 14 | **20 de 20** |
-| Execuções fora do escopo recusadas | 15 de 15 | **24 de 24** (8 perguntas × 3) |
-| Só as perguntas novas | — | válidas 6/6; fora do escopo 9/9 execuções |
+| | Rodada 1 | Rodada 2 | Rodada 3 |
+|---|---|---|---|
+| Perguntas na lista | 23 | 32 | 40 |
+| Perguntas válidas respondidas | 10 de 14 | 20 de 20 | **25 de 25** |
+| Execuções fora do escopo recusadas | 15 de 15 | 24 de 24 (8 perguntas × 3) | **33 de 33** (11 perguntas × 3) |
+| Só as perguntas novas da rodada | — | válidas 6/6; fora do escopo 9/9 execuções | válidas 4/4; fora do escopo 9/9 execuções |
 
-Na rodada 1, 4 perguntas válidas foram tratadas como fora do escopo (V05, V07, V10 e V12; entre elas, perguntas com nota ou período). A correção foi no prompt do classificador (definição explícita de "dentro", "na dúvida, dentro" e motivo curto na primeira linha). **As perguntas que falharam na rodada 1 influenciaram o ajuste, então os números da rodada 2 para elas não são independentes; as perguntas novas são o teste mais justo, mas são poucas.** As 3 repetições de cada pergunta fora do escopo também não são independentes entre si (24/24 equivalem a 8 perguntas distintas).
+- **Rodada 1.** 4 perguntas válidas foram tratadas como fora do escopo (V05, V07, V10 e V12; entre elas, perguntas com nota ou período). Correção: definição explícita de "dentro", "na dúvida, dentro" e motivo curto na primeira linha da saída do classificador.
+- **Rodada 2.** 20 de 20 válidas respondidas. Mesmo assim, **depois** dela uma pergunta válida que não estava na lista ("Quais reclamações sobre atraso na entrega apareceram em 2017?", um dos botões de exemplo da interface) foi recusada em 5 de 5 execuções, com o motivo "pedidos de contagens e filtros de datas": o modelo confundia "pergunta com período" com "pedido de contagem". Correção: o prompt passou a dizer que ano, mês, nota e categoria não tiram a pergunta do escopo, e que fica fora a pergunta cuja resposta é um número ou um dado da empresa, com um exemplo de cada lado.
+- **Rodada 3.** A pergunta que falhou entrou na lista (V21) e passou a ser respondida. As perguntas novas testam os dois lados da regra: período + relato (V22–V25, respondidas) e período + número (E09–E11, por exemplo "Quantas reclamações de atraso houve em 2017?", recusadas nas 3 execuções).
 
-### Tempos (rodada 2, modelo já carregado)
+**Como ler estes números.** As perguntas que falharam influenciaram os ajustes, então só as perguntas novas de cada rodada são um teste independente, e são poucas (na rodada 3, 4 válidas e 3 fora do escopo). As 3 repetições de cada pergunta fora do escopo não são independentes entre si. E a falha encontrada depois de um "20 de 20" mostra que uma lista pequena, escrita pelo autor, não garante o comportamento em perguntas novas.
+
+### Tempos (rodada 3, modelo já carregado)
 
 | Etapa | Mediana |
 |---|---:|
-| Reescrita da pergunta | 3,5 s |
-| Busca | 0,6 s |
-| Geração | 3,5 s |
-| **Total por resposta** | **7,5 s** (média 8,3 s; máximo 12,1 s) |
+| Reescrita da pergunta | 3,7 s |
+| Busca | 0,4 s |
+| Geração | 3,8 s |
+| **Total por resposta** | **8,1 s** (média 8,8 s; máximo 13,2 s) |
 | Recusa pelo classificador | ~2,4 s |
 
-A primeira chamada depois de ligar o computador leva cerca de 26 s (carga do modelo no Ollama).
+Na rodada 2 a mediana foi de 7,5 s. A primeira chamada depois de ligar o computador leva cerca de 26 s (carga do modelo no Ollama).
 
-### Guardas (rodada 2, 22 respostas geradas)
+### Guardas (rodada 3, 28 respostas geradas)
 
-- Média de 9,5 evidências por resposta.
-- Expressões de frequência detectadas em 5 respostas; **nenhuma persistiu** após a reescrita.
+- Média de 9,2 evidências por resposta.
+- Expressões de frequência detectadas em 6 respostas; **nenhuma persistiu** após a reescrita.
 - Nenhuma citação inexistente e nenhuma resposta sem citação.
 
 ### Precisão das citações (avaliação manual)
 
-O verificador automático só confere se o número citado existe. Para medir se a avaliação citada **sustenta** a afirmação, 60 pares (afirmação, avaliação citada), sorteados dentre 165 pares de 20 respostas, foram avaliados manualmente com este critério:
+O verificador automático só confere se o número citado existe. Para medir se a avaliação citada **sustenta** a afirmação, 60 pares (afirmação, avaliação citada), sorteados dentre 165 pares de 20 respostas da **rodada 2**, foram avaliados manualmente. A medida não foi repetida na rodada 3, porque o prompt de geração é o mesmo; só o classificador de escopo mudou. O critério:
 
 - **sustenta:** a avaliação, lida sozinha, diz o que a afirmação diz (mesmo com outras palavras);
 - **parcialmente:** diz só parte, ou é do mesmo tema sem dizer exatamente isso (por exemplo, "dentro do prazo" para "entrega rápida");
@@ -241,7 +246,7 @@ O verificador automático só confere se o número citado existe. Para medir se 
 
 ## Exemplos de perguntas e respostas
 
-Saídas reais do sistema. As respostas completas das 48 execuções da avaliação estão em `avaliacao/rodada2/resultados.csv`.
+Saídas reais do sistema. As respostas completas das 62 execuções da última rodada estão em `avaliacao/rodada3/resultados.csv`.
 
 ### 1. Pergunta com filtro manual de categoria
 
@@ -281,7 +286,7 @@ Saídas reais do sistema. As respostas completas das 48 execuções da avaliaç�
 
 > Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra).
 
-Na rodada 2, as 8 perguntas fora do escopo (faturamento, CEO da empresa, aprendizado de máquina, endereço da loja física, melhor smartphone, contagem de avaliações, poema, prazo de entrega para um CEP) foram recusadas em todas as 3 execuções.
+Na rodada 3, as 11 perguntas fora do escopo (faturamento, CEO da empresa, aprendizado de máquina, endereço da loja física, melhor smartphone, contagem de avaliações, poema, prazo de entrega para um CEP, contagem de reclamações em um ano, mês com mais vendas e nota média) foram recusadas em todas as 3 execuções.
 
 ## Problemas encontrados e como foram resolvidos
 
@@ -292,6 +297,7 @@ Na rodada 2, as 8 perguntas fora do escopo (faturamento, CEO da empresa, aprendi
 | Similaridade não distingue elogio de reclamação | Uma avaliação positiva entrou em "principais problemas" | Filtros de nota inferidos da pergunta |
 | Limiar frágil | "Previsão do tempo" ficou a 0,001 do limiar | Classificador de escopo do LLM como primeira camada |
 | Classificador recusava perguntas válidas | Rodada 1: 4 de 14 válidas recusadas | Prompt reformulado e reavaliação (rodada 2) |
+| Classificador confundia período com contagem | Depois da rodada 2, um botão de exemplo da interface foi recusado em 5 de 5 execuções | Regra explícita (período é filtro; número é fora do escopo), exemplos no prompt e rodada 3 |
 | Resposta do classificador fora do formato | O modelo respondeu só `FORA`, e a palavra virou consulta de busca | Parser tolerante; a saída bruta aparece no modo `--debug` |
 | Filtro de período parecia errado | Avaliações de "março" apareciam com mês de abril | Mostrar mês da compra e mês da avaliação; contexto do modelo usa a compra |
 | Reescrita perdia as citações por tópico | A segunda versão da guarda de frequência juntava as citações no fim | O pedido de reescrita exige o mesmo formato, com citações por tópico |
@@ -302,9 +308,9 @@ Na rodada 2, as 8 perguntas fora do escopo (faturamento, CEO da empresa, aprendi
 - **"Principais" não é "mais frequentes".** A resposta descreve uma amostra de avaliações recuperadas (as mais parecidas com a pergunta), não uma estatística. O sistema evita afirmar proporções, mas não as calcula.
 - **Citações.** Só 45% dos pares sustentam diretamente a afirmação (intervalo de 33% a 58%); 48% sustentam em parte e 7% não sustentam. O verificador automático só confere a existência do número. Uma verificação por tópico com o LLM seria o próximo passo.
 - **Perguntas com premissa que as avaliações não confirmam.** "Quais elogios aparecem sobre entregas atrasadas?" foi respondida com "Há relatos de elogios sobre entregas atrasadas", mas os tópicos e as citações eram sobre entregas **no prazo**. O modelo repetiu a premissa da pergunta. Uma regra de prompt para apontar premissas não confirmadas é uma melhoria conhecida e não implementada.
-- **Mensagem de recusa imprecisa.** "O que os clientes dizem sobre o aplicativo da loja?" e "Os clientes reclamam de cobrança duplicada no cartão?" foram recusadas como "fora do escopo", embora sejam assuntos do domínio, talvez sem avaliações que os sustentem. A recusa é segura, mas a explicação poderia distinguir "assunto alheio" de "sem evidência".
-- **Classificador baseado em LLM.** A decisão de escopo pode variar entre execuções e já errou na rodada 1. O limiar de 0,85 é uma segunda camada frágil, calibrada com apenas 30 perguntas.
-- **Escala da avaliação.** 32 perguntas distintas na rodada 2 (23 na rodada 1), escolhidas pelo autor, e 60 citações avaliadas por uma só pessoa.
+- **Classificador baseado em LLM.** A decisão de escopo errou na rodada 1 e de novo depois da rodada 2, numa pergunta que a lista de avaliação não cobria; é provável que existam outras formulações válidas que ele ainda recuse. O motivo que ele escreve também não é confiável: numa pergunta sobre previsão do tempo, recusou corretamente, mas com o motivo "pede um número", copiado de um exemplo do prompt. O limiar de 0,85 é uma segunda camada frágil, calibrada com apenas 30 perguntas.
+- **Perguntas do domínio sem evidência.** "O que os clientes dizem sobre o aplicativo da loja?" foi respondida nas rodadas 1 e 3 e recusada como "fora do escopo" na rodada 2: o comportamento muda quando o prompt do classificador muda. Na rodada 3, a resposta falou de rapidez da entrega e de satisfação com os produtos, com citações, sem mencionar aplicativo e sem avisar que as avaliações recuperadas não tratam dele. O sistema não inventou nada sobre o aplicativo, mas respondeu a outra pergunta: as frases geradas na reescrita são genéricas, recuperam avaliações acima do limiar, e o modelo não aplicou a regra de recusar quando as avaliações não respondem à pergunta. "Os clientes reclamam de cobrança duplicada no cartão?" foi recusada como "fora do escopo" nas três rodadas, embora seja um assunto do domínio, talvez sem avaliações que o sustentem. A recusa é segura, mas a mensagem não distingue "assunto alheio" de "sem evidência".
+- **Escala da avaliação.** 40 perguntas distintas na rodada 3 (23 na rodada 1 e 32 na rodada 2), escolhidas pelo autor, e 60 citações avaliadas por uma só pessoa.
 - **Viés da base.** Só 41% das avaliações têm comentário, e comentam 77% dos clientes de nota 1 contra 36% dos de nota 5.
 - **Categorias.** Algumas se sobrepõem (`casa_conforto` e `casa_conforto_2`, `eletrodomesticos` e `eletrodomesticos_2`, `ferramentas_jardim` e `construcao_ferramentas_jardim`), então filtrar por uma deixa a outra de fora. Pedidos com várias categorias usam a mais frequente, e 1.049 avaliações não têm categoria.
 - **Atraso na entrega** é medido contra a data estimada pela Olist, não contra o prazo que o cliente esperava.
@@ -364,9 +370,9 @@ Opções: `--faixa`, `--entrega`, `--categoria`, `--meses 2018-03,2018-04`, `--s
 ```
 python src/filtros.py                                     # 21 autotestes dos filtros (sem Ollama)
 python src/calibrar_limiar.py                             # calibração do limiar
-python src/avaliar.py --executar --rodada rodada2         # roda as perguntas de teste
-python src/avaliar.py --rotular --rodada rodada2          # avaliação manual das citações
-python src/avaliar.py --resumo --rodada rodada2           # números finais
+python src/avaliar.py --executar --rodada minha_rodada    # roda as 40 perguntas de teste (62 execuções)
+python src/avaliar.py --rotular --rodada minha_rodada     # avaliação manual das citações (opcional)
+python src/avaliar.py --resumo --rodada minha_rodada      # números finais
 ```
 
 ## Estrutura do repositório
@@ -389,7 +395,8 @@ voc-rag-olist/
 │   ├── app.py                     interface Streamlit
 │   └── avaliar.py                 avaliação (comportamento, tempos, citações)
 ├── avaliacao/                     resultados da rodada 1
-│   └── rodada2/                   resultados, citações rotuladas e resumo da rodada 2
+│   ├── rodada2/                   resultados, citações rotuladas e resumo da rodada 2
+│   └── rodada3/                   resultados e resumo da rodada 3 (classificador final)
 ├── docs/img/                      capturas de tela
 └── data/                          (não versionada) CSVs, base processada e índice
 ```

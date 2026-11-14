@@ -1,0 +1,41 @@
+=== Comportamento ===
+Perguntas válidas: 25/25 respondidas; recusas indevidas: 0
+Fora do escopo: 33 execuções (11 perguntas); recusadas 33/33
+   pelo classificador de escopo (fora_do_escopo): 33
+   pelo limiar ou pelo modelo (sem_evidencia):     0
+   respondidas indevidamente:                      0
+   E01: fora_do_escopo x3
+   E02: fora_do_escopo x3
+   E03: fora_do_escopo x3
+   E04: fora_do_escopo x3
+   E05: fora_do_escopo x3
+   E06: fora_do_escopo x3
+   E07: fora_do_escopo x3
+   E08: fora_do_escopo x3
+   E09: fora_do_escopo x3
+   E10: fora_do_escopo x3
+   E11: fora_do_escopo x3
+Perguntas novas da rodada 2 (não usadas para ajustar o sistema):
+   válidas respondidas: 6/6 | fora do escopo recusadas: 9/9 execuções
+Perguntas novas da rodada 3 (não usadas para ajustar o sistema):
+   válidas respondidas: 4/4 | fora do escopo recusadas: 9/9 execuções
+Pergunta que motivou o ajuste da rodada 3: V21 -> respondida
+Perguntas difíceis (só registradas; avalie o texto em resultados.csv):
+   D01 (O que os clientes dizem sobre o aplicativo da loja?): respondida x1
+   D02 (Quais elogios aparecem sobre entregas atrasadas?): respondida x1
+   D03 (Entrega): respondida x1
+   D04 (Os clientes reclamam de cobrança duplicada no cartão?): fora_do_escopo x1
+
+=== Tempos das respostas (s, com o modelo já carregado) ===
+Total: mediana 8.1 | média 8.8 | máx. 13.2
+   reescrita: mediana 3.7
+   busca: mediana 0.4
+   geração: mediana 3.8
+
+=== Guardas (respostas geradas) ===
+Respostas: 28 | evidências por resposta (média): 9.2
+Palavras de frequência detectadas: 6 respostas; persistiram após a reescrita: 0
+Citações inexistentes: 0 respostas | respostas sem nenhuma citação: 0
+
+=== Precisão das citações (avaliação manual) ===
+Nenhum par rotulado ainda. Rode: python src/avaliar.py --rotular

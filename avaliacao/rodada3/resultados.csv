@@ -1,0 +1,268 @@
+﻿id,tipo,repeticao,pergunta,status,ok,filtros,melhor_similaridade,textos_unicos_acima_limiar,evidencias,citacoes_validas,citacoes_invalidas,avisos,saida_reescrita,freq_detectada,freq_apos_reescrita,t_reescrita,t_busca,t_geracao,t_total,resposta
+V01,valida,1,Quais são os principais motivos de insatisfação dos clientes?,respondida,True,nota negativa,0.887,79,10,1;3;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - motivos de insatisfação dos clientes  
+A entrega chegou muito depois do prazo.  
+O produto não era o que estava descrito.  
+A qualidade do item foi muito abaixo do esperado.  
+O atendimento ao cliente foi péssimo.  
+CATEGORIA: nenhuma",varios,,4.0,0.4,4.1,13.2,"Há relatos de insatisfação dos clientes relacionados a diversos fatores.  
+- Há relatos de desrespeito e péssimo atendimento [1][5][10]  
+- Há relatos de produtos diferentes do anunciado ou de baixa qualidade [3][4][8][9]  
+- Há relatos de problemas com a entrega, como atrasos e falta de compromisso [7][6]"
+V02,valida,1,O que os consumidores mais valorizam em sua experiência de compra?,respondida,True,nota positiva,0.882,72,10,1;2;3;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - o que os clientes escreveram  
+A entrega rápida foi muito importante para mim.  
+O atendimento foi excelente e atencioso.  
+Os produtos são de alta qualidade e duráveis.  
+A variedade de opções me deixou satisfeito.  
+CATEGORIA: nenhuma",principalmente,,3.7,0.5,3.6,11.5,"Há relatos de que os consumidores valorizam a qualidade dos produtos e o atendimento.  
+- Qualidade dos produtos [1][4][6][9]  
+- Atendimento rápido e satisfatório [2][3][5][7][8][10]"
+V03,valida,1,O que os clientes relatam sobre a qualidade dos produtos?,respondida,True,sem filtros,0.869,46,10,5;7;8;10,,,"ESCOPO: DENTRO - relatos sobre qualidade dos produtos  
+A qualidade dos produtos é excelente, tudo chega em perfeito estado.  
+Alguns produtos chegaram com pequenos defeitos, mas a maioria está ótima.  
+A embalagem dos itens é muito boa, protege bem os produtos.  
+CATEGORIA: nenhuma",geralmente,,4.0,0.1,4.1,12.4,"Há relatos sobre a qualidade dos produtos sendo elogiada, mas também há relatos de insatisfação com o prazo de entrega.  
+Há relatos de que alguns produtos possuem material fraco ou qualidade que deixa a desejar [7][8].  
+Há relatos de que o produto chegou com atraso, mas a qualidade foi considerada OK [5][10]."
+V04,valida,1,Existem relatos de produtos que chegaram diferentes do que foi anunciado?,respondida,True,sem filtros,0.899,96,10,1;2;4;5;6;10,,,"ESCOPO: DENTRO - relatos de clientes sobre produtos  
+A embalagem estava diferente do produto anunciado.  
+Chegou um item que não estava na foto.  
+O produto não correspondeu às expectativas.  
+Faltavam partes importantes do produto comprado.  
+CATEGORIA: nenhuma",,,4.0,0.2,3.4,7.6,"Há relatos de produtos que chegaram diferentes do que foi anunciado.  
+[1][2][4][5][6][10]"
+V05,valida,1,Quais padrões aparecem nas avaliações de clientes insatisfeitos?,respondida,True,nota negativa,0.877,69,10,1;3;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - relatos de clientes insatisfeitos  
+A entrega chegou muito depois do prazo.  
+O produto estava com defeito e não foi substituído.  
+A loja não respondeu meu e-mail de reclamação.  
+CATEGORIA: nenhuma",,,3.9,0.4,4.0,8.2,Há relatos de problemas com a qualidade do produto [1][6][9]. Há relatos de entregas atrasadas ou incompletas [3][5][7][8]. Há relatos de falta de resposta ou atendimento ao cliente [4][7][10].
+V06,valida,1,Quais avaliações sustentam a conclusão de que existem problemas recorrentes com o prazo de entrega?,respondida,True,nota negativa,0.872,52,10,1;2;4;6;7;8;10,,,"ESCOPO: DENTRO - relatos de clientes sobre prazo de entrega  
+A entrega chegou com 5 dias de atraso e eu fiquei muito frustrado.  
+O prazo prometido era de 3 dias, mas passaram-se 7.  
+Fiquei esperando muito tempo e não consegui usar o produto a tempo.  
+CATEGORIA: nenhuma",,,4.2,0.3,3.2,7.7,"Há relatos de problemas recorrentes com o prazo de entrega.  
+[1][2][4][6][7][8][10]"
+V07,valida,1,Quais problemas de entrega aparecem nas avaliações de 2018?,respondida,True,nota negativa; compra de 2018-01 a 2018-12,0.885,66,10,2;3;4;5;6;7;9,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+A entrega chegou muito depois do prazo.  
+Faltava um item no pacote recebido.  
+O produto estava quebrado e não estava embalado com cuidado.  
+A embalagem estava danificada e o produto chegou quebrado.  
+CATEGORIA: nenhuma",,,3.8,0.8,3.5,8.0,"Há relatos de problemas de entrega nas avaliações de 2018.  
+- Atraso na entrega [2][6].  
+- Produto chegou danificado ou quebrado [4][5][9].  
+- Falta de itens no produto [3][7]."
+V08,valida,1,O que os clientes elogiam em produtos de beleza e saúde?,respondida,True,nota positiva; categoria beleza_saude,0.865,58,10,1;2;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - elogios sobre produtos de beleza e saúde  
+A embalagem é muito bonita e bem organizada.  
+O produto é eficaz e me deixou muito satisfeita.  
+A textura é agradável e a fragrância é deliciosa.  
+O resultado foi imediato e superou as minhas expectativas.  
+CATEGORIA: beleza_saude",principalmente,,3.7,0.4,3.3,10.6,"Há relatos de elogios aos produtos e à experiência de compra.  
+- Entrega rápida [2][5][7][8][9]  
+- Satisfação com os produtos [1][4][6][10]"
+V09,valida,1,Quais problemas são relatados em móveis e decoração?,respondida,True,nota negativa; categoria moveis_decoracao,0.859,7,4,1;3;4,,,"ESCOPO: DENTRO - problemas em produtos específicos  
+A montagem do móvel foi muito difícil.  
+A estrutura do armário ficou muito frágil.  
+A embalagem chegou com danos e a peça quebrou.  
+CATEGORIA: moveis_decoracao",,,3.2,0.3,3.2,6.7,"Há relatos de problemas com os móveis e decoração.  
+[1] Caixa destruída e rasgo no assento.  
+[3] Produto chegado quebrado.  
+[4] Produto estraviado durante o transporte."
+V10,valida,1,Quais reclamações aparecem nas avaliações com nota 1?,respondida,True,nota 1,0.873,65,10,1;2;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - reclamações em avaliações com nota  
+A entrega chegou muito danificada e sem embalagem.  
+O produto não funcionou e não foi reembolsado.  
+Faltaram peças importantes e não houve suporte.  
+A loja não respondeu meu e-mail por semanas.  
+CATEGORIA: nenhuma",,,3.5,0.4,3.7,7.5,"Há relatos de reclamações nas avaliações com nota 1.  
+- Problemas com a entrega, como itens faltando ou entregues incompletos [1][5][7].  
+- Produtos defeituosos ou que não funcionam [2][6][10].  
+- Atendimento precário e atrasos na entrega [4][8][9]."
+V11,valida,1,O que os clientes dizem sobre pedidos que não chegaram?,respondida,True,entrega nao_entregue,0.871,49,10,1;2;3;4;5;7;8;9,,,"ESCOPO: DENTRO - relatos de clientes sobre entregas  
+A entrega do meu pedido demorou mais de uma semana.  
+Fiz a compra há uma semana e ainda não recebi nada.  
+O sistema mostrava que o pedido estava em transito, mas nunca chegou.  
+Tentei contato com o suporte e não tive resposta.  
+CATEGORIA: nenhuma",,,3.5,0.3,3.6,7.3,"Clientes relatam problemas com a entrega de pedidos, como atrasos e falta de resposta. Há relatos de pedidos que não chegaram [1][2][5][7][8][9]. Alguns mencionam atrasos de até um mês [4]. Outros destacam a falta de comunicação da empresa [2][3][8]."
+V12,valida,1,Quais elogios aparecem nas compras de dezembro de 2017?,respondida,True,nota positiva; compra em 2017-12,0.899,91,10,1;2;3;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+Excelente atendimento e entrega rápida.  
+Produtos de alta qualidade, como esperado.  
+Site muito fácil de navegar e seguro.  
+Entrega no prazo e embalagem bem protegida.  
+CATEGORIA: nenhuma",,,3.3,0.4,4.5,8.1,"A compra de dezembro de 2017 recebeu elogios sobre o produto e a experiência de compra.  
+- Produto excelente e entrega super rápida [1].  
+- PRODUTO DE ÓTIMA QUALIDADE [2].  
+- Site seguro [3].  
+- Entregue antes do prazo [4].  
+- Entrega rápida [5].  
+- ótimo produto dentro das expectativas [6].  
+- Compra fácil, segura e rápida! [7].  
+- Ótimo atendimento [8].  
+- PRODUTO CONFORME ANUNCIADO [9].  
+- Recebi certinho ótimo site [10]."
+V13,valida,1,Quais problemas de qualidade aparecem em informática e acessórios?,respondida,True,nota negativa; categoria informatica_acessorios,0.864,5,4,1;2;3;4,,,"ESCOPO: DENTRO - problemas em produtos  
+A tela do notebook ficou travada após 2 dias de uso.  
+O mouse não funciona corretamente e fica com falhas.  
+O teclado tem teclas que não respondem.  
+CATEGORIA: informatica_acessorios",,,3.2,0.3,3.4,6.9,"Há relatos de problemas de qualidade em informática e acessórios.  
+- Defeito no produto que impossibilita o funcionamento [1].  
+- Cartucho que não está funcionando [2].  
+- Falta de entrega do teclado [3].  
+- Falta de entrega do toner [4]."
+V14,valida,1,O que os clientes relatam sobre o atendimento dos vendedores?,respondida,True,sem filtros,0.883,66,10,2;3;6;8;9;10,,,"ESCOPO: DENTRO - relatos de clientes sobre atendimento  
+A atendimento dos vendedores foi excelente, sempre prestativo.  
+Os vendedores são muito gentis e atenciosos.  
+Alguns clientes destacam a rapidez na resposta dos vendedores.  
+O atendimento foi muito bom, me ajudaram muito.  
+CATEGORIA: nenhuma",,,3.7,0.2,3.7,7.6,Os clientes relatam que o atendimento dos vendedores é atencioso e satisfatório [2][6][8]. Há relatos de que os vendedores despacham rapidamente e atendem às expectativas [3][9]. Alguns destacam a honestidade e a correção dos vendedores [10].
+V15,valida,1,Quais problemas aparecem nas avaliações de esporte e lazer?,respondida,True,nota negativa; categoria esporte_lazer,0.872,30,10,1;2;3;4;5;6;8;9;10,,,"ESCOPO: DENTRO - problemas em avaliações de clientes  
+A entrega demorou muito e o produto chegou quebrado.  
+A qualidade do produto é péssima, não durou nem uma semana.  
+O produto não veio como descrito, estava muito diferente do que prometido.  
+O atendimento ao cliente foi ruim, não resolveram meu problema.  
+CATEGORIA: esporte_lazer",,,3.8,0.6,4.1,8.5,"Há relatos de problemas nas avaliações de esporte e lazer.  
+- Problemas com a entrega do produto [1][4][6][8][9][10].  
+- Problemas com o funcionamento do produto [1][2][5].  
+- Problemas com a comunicação e atendimento [3][10]."
+V16,valida,1,O que os clientes elogiam nas avaliações de 2017?,respondida,True,nota positiva; compra de 2017-01 a 2017-12,0.908,86,10,1;2;3;7;8;9;10,,,"ESCOPO: DENTRO - elogios em um período  
+Excelente atendimento e entrega rápida.  
+Produtos de alta qualidade e bem embalados.  
+Site muito fácil de navegar e com ótima variedade.  
+Preços competitivos e promoções incríveis.  
+CATEGORIA: nenhuma",principalmente,,3.5,1.2,4.0,12.7,"Há relatos de elogios aos aspectos do produto e da experiência de compra.  
+- O produto é descrito como excelente, maravilhoso e bem embalado [1][2][10].  
+- A entrega é rápida e a compra é considerada fácil [1][3][8].  
+- O site é elogiado por ser ótimo, confiável e recomendado [3][7][9]."
+V17,valida,1,Quais reclamações aparecem nas avaliações com nota 2?,respondida,True,nota 2,0.873,65,10,1;3;4;5;6;7;8;9;10,,,"ESCOPO: DENTRO - reclamações em avaliações com nota  
+A entrega chegou muito danificada e sem embalagem.  
+O produto não funcionou e não havia garantia.  
+Fiz a compra e não recebi o que pedi.  
+A loja não respondeu meu e-mail de reclamação.  
+CATEGORIA: nenhuma",,,3.9,0.4,3.9,8.2,"Há relatos de problemas com a entrega e o produto.  
+- Entrega parcial e produto incompleto [1][3][5].  
+- Produto chegou avariado e recusado [4].  
+- Falta de comunicação sobre a entrega [9].  
+- Produto não recebido ou com características diferentes [6][7][8][10]."
+V18,valida,1,Quais pontos negativos aparecem nas compras de junho de 2018?,respondida,True,nota negativa; compra em 2018-06,0.871,11,6,1;2;3;5;6,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+A entrega chegou muito depois do prazo.  
+O produto estava com defeito e não funcionou.  
+Faltavam itens que foram anunciados na descrição.  
+A comunicação com o atendente foi muito ruim.  
+CATEGORIA: nenhuma",,,3.7,0.6,3.4,7.7,"Há relatos de problemas nas compras de junho de 2018.  
+- Atraso na entrega [1][3][5].  
+- Produto com defeito [2][6].  
+- Produto chegou diferente do solicitado [5]."
+V19,valida,1,O que as avaliações dizem sobre a embalagem dos produtos?,respondida,True,sem filtros,0.872,81,10,2;5;10,,,"ESCOPO: DENTRO - conteúdo das avaliações  
+A embalagem chegou bem protegida e intacta.  
+O produto estava bem embalado, sem danos.  
+A embalagem foi muito resistente e segura.  
+CATEGORIA: nenhuma",,,3.4,0.2,3.8,7.5,"A embalagem dos produtos é mencionada em algumas avaliações. Há relatos de que os produtos chegam bem embalados [2][10]. Também há uma avaliação que menciona excesso de embalagem, com uso de muito plástico e papelão, questionando a preocupação com a sustentabilidade [5]."
+V20,valida,1,Quais problemas aparecem nas avaliações de clientes que receberam o pedido com atraso?,respondida,True,nota negativa; entrega atrasada,0.89,64,10,1;2;4;5;6;7;10,,,"ESCOPO: DENTRO - relatos de clientes sobre atrasos  
+A entrega do produto chegou com mais de uma semana de atraso.  
+Fiquei muito frustrado com o prazo estendido.  
+Não consegui usar o produto no prazo esperado.  
+Atraso na entrega comprometeu minha experiência.  
+CATEGORIA: nenhuma",,,3.7,0.6,3.8,8.1,Há relatos de atraso na entrega dos pedidos [1][2][5]. Alguns clientes mencionam que o produto não chegou ainda [4][7][10]. Outros destacam que o fornecedor não deu satisfação sobre o atraso [6].
+V21,valida,1,Quais reclamações sobre atraso na entrega apareceram em 2017?,respondida,True,nota negativa; entrega atrasada; compra de 2017-01 a 2017-12,0.874,35,10,1;2;3;5;6;9;10,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+A entrega chegou com mais de 10 dias de atraso.  
+Fiquei muito frustrado com o prazo prometido.  
+Não tinha data de entrega definida no pedido.  
+A empresa não informou o motivo do atraso.  
+CATEGORIA: nenhuma",,,3.6,1.1,5.3,10.0,"Há relatos de reclamações sobre atraso na entrega em 2017.  
+- A entrega teve 3 dias de atraso conforme a previsão [1].  
+- Produto com entrega atrasada [2].  
+- Muita demora na entrega [3].  
+- A targaryen NÃO ENTREGA NO PRAZO PREVISTO [5].  
+- Os correios atrasaram a entrega e a encomenda esta parada la no centro de distribuicao [6].  
+- Entendo que o produto nao chegou por motivo de greve doa correios [9].  
+- Esperava que eles cumprisse o prazo da entrega [10]."
+V22,valida,1,Quais elogios sobre a entrega surgiram em 2018?,respondida,True,nota positiva; compra de 2018-01 a 2018-12,0.912,56,5,1;2;3;5,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+Rapida e sem danos, muito bom!  
+Entrega muito rápida e com cuidado!  
+Chegou antes do prazo e em perfeito estado!  
+CATEGORIA: nenhuma",,,3.4,1.0,3.8,8.2,"A entrega foi elogiada por ser rápida e sem problemas em 2018.  
+[1] entrega rápida, e sem problemas  
+[2] Entrega super rápida!  
+[3] Chegou antes do prazo!  
+[5] chegou antes do prazo de entrega e veio em perfeito estado!"
+V23,valida,1,Que problemas com os produtos os clientes relataram em janeiro de 2018?,respondida,True,nota negativa; compra em 2018-01,0.879,25,10,1;2;4;5;6;7;8;10,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+Alguns produtos chegaram com defeitos de fabricação.  
+A embalagem estava muito danificada, prejudicando o produto.  
+Faltavam peças importantes dentro da embalagem.  
+O produto não funcionou conforme esperado.  
+CATEGORIA: nenhuma",,,3.7,0.6,4.0,8.2,"Há relatos de problemas com os produtos os clientes relataram em janeiro de 2018:  
+
+- Produtos recebidos errados ou diferentes da descrição [1][8][10]  
+- Produtos avariados, quebrados ou incompletos [2][7][10]  
+- Problemas na entrega, como demora e produto não entregue [4][5][6]"
+V24,valida,1,Quais críticas ao atendimento apareceram nas compras de novembro de 2017?,respondida,True,nota negativa; compra em 2017-11,0.867,29,10,1;2;3;4;6;7;8;9;10,,,"ESCOPO: DENTRO - críticas sobre atendimento em um período  
+Foi muito ruim o atendimento, não resolvem nada.  
+A loja não tem equipe qualificada para atender.  
+Fiquei horas esperando e não me ajudaram.  
+Não recomendo o atendimento da loja.  
+CATEGORIA: nenhuma",,,3.6,0.6,3.6,7.7,"Há relatos de críticas ao atendimento nas compras de novembro de 2017.  
+- Falta de resposta e contato [3].  
+- Problemas na entrega e produtos não entregues [2][6][7][8][9].  
+- Frustração com o atendimento e recomendação negativa [1][4][10]."
+V25,valida,1,O que os clientes de 2017 dizem sobre a qualidade dos produtos?,respondida,True,compra de 2017-01 a 2017-12,0.874,65,10,1;3;6;7;8;9;10,,,"ESCOPO: DENTRO - relatos de clientes em um período  
+A qualidade dos produtos é excelente, tudo chega em perfeito estado.  
+Os itens são bem descritos e atendem às expectativas.  
+Alguns produtos tinham pequenas falhas, mas a maioria é confiável.  
+CATEGORIA: nenhuma",,,3.5,0.9,3.5,7.9,Clientes de 2017 destacam a qualidade dos produtos [1][6][7]. Há relatos de que os produtos atendem as expectativas [3] e são entregues conforme anunciado [7][10]. Alguns avaliam a loja como confiável [8][9].
+E01,fora_escopo,1,Qual foi o faturamento da empresa em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E01,fora_escopo,2,Qual foi o faturamento da empresa em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E01,fora_escopo,3,Qual foi o faturamento da empresa em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E02,fora_escopo,1,Quem é o CEO da Olist?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E02,fora_escopo,2,Quem é o CEO da Olist?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E02,fora_escopo,3,Quem é o CEO da Olist?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E03,fora_escopo,1,Explique como funciona o aprendizado de máquina.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E03,fora_escopo,2,Explique como funciona o aprendizado de máquina.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.3,,,2.3,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E03,fora_escopo,3,Explique como funciona o aprendizado de máquina.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E04,fora_escopo,1,Qual o endereço da loja física?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E04,fora_escopo,2,Qual o endereço da loja física?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E04,fora_escopo,3,Qual o endereço da loja física?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um dado da empresa,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E05,fora_escopo,1,Qual é o melhor smartphone para comprar hoje?,fora_do_escopo,True,sem filtros,,,0,,,,"ESCOPO: FORA - pede um número  
+CATEGORIA: nenhuma",,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E05,fora_escopo,2,Qual é o melhor smartphone para comprar hoje?,fora_do_escopo,True,sem filtros,,,0,,,,"ESCOPO: FORA - pede um número  
+CATEGORIA: nenhuma",,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E05,fora_escopo,3,Qual é o melhor smartphone para comprar hoje?,fora_do_escopo,True,sem filtros,,,0,,,,"ESCOPO: FORA - pede um número  
+CATEGORIA: nenhuma",,,2.6,,,2.6,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E06,fora_escopo,1,Quantas avaliações têm nota 5?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E06,fora_escopo,2,Quantas avaliações têm nota 5?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E06,fora_escopo,3,Quantas avaliações têm nota 5?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E07,fora_escopo,1,Escreva um poema sobre a Olist.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede uma criação original,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E07,fora_escopo,2,Escreva um poema sobre a Olist.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede uma criação original,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E07,fora_escopo,3,Escreva um poema sobre a Olist.,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede uma criação original,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E08,fora_escopo,1,Qual o prazo de entrega para o CEP 69000-000?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E08,fora_escopo,2,Qual o prazo de entrega para o CEP 69000-000?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E08,fora_escopo,3,Qual o prazo de entrega para o CEP 69000-000?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E09,fora_escopo,1,Quantas reclamações de atraso houve em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E09,fora_escopo,2,Quantas reclamações de atraso houve em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E09,fora_escopo,3,Quantas reclamações de atraso houve em 2017?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E10,fora_escopo,1,Qual foi o mês com mais vendas em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E10,fora_escopo,2,Qual foi o mês com mais vendas em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E10,fora_escopo,3,Qual foi o mês com mais vendas em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E11,fora_escopo,1,Qual a nota média das avaliações em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E11,fora_escopo,2,Qual a nota média das avaliações em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+E11,fora_escopo,3,Qual a nota média das avaliações em 2018?,fora_do_escopo,True,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.4,,,2.4,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
+D01,dificil,1,O que os clientes dizem sobre o aplicativo da loja?,respondida,,sem filtros,0.865,27,9,1;2;3;4;5;6;7;8;9,,,"ESCOPO: DENTRO - comentários sobre o aplicativo  
+A interface do app é muito intuitiva e facilita muito a navegação.  
+O app está sempre atualizado e tem uma boa velocidade de carregamento.  
+Adorei a opção de pagar com cartão de crédito diretamente no app.  
+CATEGORIA: nenhuma",,,3.6,0.2,3.8,7.7,"Os clientes destacam a rapidez da entrega e a satisfação com os produtos.  
+- A entrega é considerada muito rápida [1][2][6].  
+- Os produtos são bem avaliados e recomendados [3][4][9].  
+- Há relatos de satisfação com a experiência geral de compra [5][7][8]."
+D02,dificil,1,Quais elogios aparecem sobre entregas atrasadas?,respondida,,nota positiva; entrega atrasada,0.884,44,10,1;3;4;6;7;8;9,,,"ESCOPO: DENTRO - elogios sobre entregas atrasadas  
+A entrega chegou no prazo prometido, muito rápida.  
+Fiquei surpreso com a velocidade da entrega, mesmo com o frete grátis.  
+O produto chegou antes do prazo, muito bom!  
+CATEGORIA: nenhuma",,,3.6,0.6,4.0,8.1,"Há relatos de elogios sobre entregas atrasadas.  
+- Entregas no prazo [1][3][4]  
+- Prazo cumprido [6][8][9]  
+- Entrega conforme prometido [4][7]  
+- Chegou antes do prazo informado [3]  
+- Produto entregue como esperado [7][8]"
+D03,dificil,1,Entrega,respondida,,sem filtros,0.909,88,10,2;3;4;5;8;9;10,,,"ESCOPO: DENTRO - relatos de clientes sobre entrega  
+A entrega foi muito rápida e bem embalada.  
+O produto chegou em perfeito estado, mesmo após o transporte.  
+Fiz a compra e a entrega foi feita no prazo combinado.  
+CATEGORIA: nenhuma",varios,,5.4,0.2,3.5,12.4,A entrega foi avaliada como rápida e dentro do prazo em alguns casos [2][3][4][8][10]. Há relatos de atraso na entrega [5]. O produto chegou embalado e sem danos [3][9].
+D04,dificil,1,Os clientes reclamam de cobrança duplicada no cartão?,fora_do_escopo,,sem filtros,,,0,,,,ESCOPO: FORA - pede um número,,,2.5,,,2.5,"Essa pergunta está fora do escopo desta base, que contém apenas avaliações escritas por clientes (entrega, produto, atendimento e experiência de compra)."
