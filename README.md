@@ -344,11 +344,11 @@ Na rodada 3, as 11 perguntas fora do escopo (faturamento, CEO da empresa, aprend
 
 ## Como reproduzir
 
-Testado no **Windows 10 com Python 3.11**. Os comandos de ativação do ambiente virtual em Linux/macOS são diferentes (`source .venv/bin/activate`) e não foram testados.
+Testado no **Windows 10 com Python 3.11**. As instruções abaixo foram conferidas num clone novo do repositório, com o ambiente virtual criado do zero: a base, os metadados e o índice saíram com os mesmos números deste README, e a mesma pergunta de teste foi respondida com os mesmos filtros. O teste não cobriu o download dos modelos (já estavam na máquina) nem outro computador. Os comandos de ativação do ambiente virtual em Linux/macOS são diferentes (`source .venv/bin/activate`) e não foram testados.
 
 ### 1. Pré-requisitos
 
-- Python 3.11.
+- **Python 3.11** (testado com o 3.11.9). As versões fixadas em `requirements.txt` foram instaladas e testadas nele. Com um Python mais novo (por exemplo o 3.15), o `pip` não encontra o NumPy 2.4.6 já compilado, tenta compilá-lo e falha se não houver um compilador C instalado.
 - [Ollama](https://ollama.com) instalado e aberto. Baixe o modelo: `ollama pull qwen3:8b`.
 - Os CSVs do Kaggle ([Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)) dentro da pasta `data/` do projeto. A base **não** está neste repositório; consulte a licença na página do Kaggle.
 
@@ -357,10 +357,13 @@ Testado no **Windows 10 com Python 3.11**. Os comandos de ativação do ambiente
 ```
 git clone https://github.com/Vangelo42/voc-rag-olist.git
 cd voc-rag-olist
-python -m venv .venv
+py -3.11 -m venv .venv
 .venv\Scripts\activate
+python --version
 pip install -r requirements.txt
 ```
+
+O `py -3.11` garante que o ambiente seja criado com o Python 3.11 mesmo que haja outra versão instalada; `py --list` mostra as versões disponíveis, e o `python --version` deve responder `Python 3.11.x`.
 
 ### 3. Construção da base de conhecimento (nesta ordem)
 
@@ -370,7 +373,9 @@ python src/enriquecer_metadados.py
 python src/indexar.py
 ```
 
-O `indexar.py` baixa o modelo de embeddings do Hugging Face na primeira execução (precisa de internet) e leva cerca de 8 minutos na CPU; depois usa o cache em `data/processed/embeddings_e5_base.npy`. Depois do primeiro download, `set HF_HUB_OFFLINE=1` evita consultas de rede.
+O `indexar.py` baixa o modelo de embeddings do Hugging Face na primeira execução (precisa de internet) e leva de 8 a 9 minutos na CPU para gerar os embeddings (469 s e 516 s em duas execuções); depois usa o cache em `data/processed/embeddings_e5_base.npy`. Depois do primeiro download, `set HF_HUB_OFFLINE=1` evita consultas de rede.
+
+**Quanto tempo leva.** Do zero, conte com 30 minutos a 1 hora, quase tudo em downloads: o `qwen3:8b` (cerca de 5 GB), as bibliotecas Python (o PyTorch é a maior), os CSVs do Kaggle e os 8 a 9 minutos dos embeddings. A primeira pergunta depois de abrir o Ollama leva cerca de 30 s, pela carga do modelo; as seguintes, cerca de 8 s. Para avaliar sem instalar, as respostas reais do sistema estão em [`avaliacao/`](avaliacao/).
 
 ### 4. Uso
 
