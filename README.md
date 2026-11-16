@@ -134,7 +134,7 @@ Implementado em `src/rag.py` (classe `RAG`), com a linha de comando e a interfac
 
 ### Calibração do limiar
 
-O E5 comprime as similaridades em uma faixa estreita (~0,78 a 0,94). Com 16 perguntas dentro do escopo e 14 fora (`src/calibrar_limiar.py`):
+O E5 comprime as similaridades em uma faixa estreita (~0,78 a 0,94). Com 16 perguntas dentro do escopo e 14 fora (`src/calibrar_limiar.py`; resultado por pergunta em [`avaliacao/calibracao.csv`](avaliacao/calibracao.csv)):
 
 | | Mínimo | Mediana | Máximo |
 |---|---:|---:|---:|
@@ -350,7 +350,7 @@ Testado no **Windows 10 com Python 3.11**. As instruções abaixo foram conferid
 
 - **Python 3.11** (testado com o 3.11.9). As versões fixadas em `requirements.txt` foram instaladas e testadas nele. Com um Python mais novo (por exemplo o 3.15), o `pip` não encontra o NumPy 2.4.6 já compilado, tenta compilá-lo e falha se não houver um compilador C instalado.
 - [Ollama](https://ollama.com) instalado e aberto. Baixe o modelo: `ollama pull qwen3:8b`.
-- Os CSVs do Kaggle ([Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)) dentro da pasta `data/` do projeto. A base **não** está neste repositório; consulte a licença na página do Kaggle.
+- A base [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), baixada do Kaggle (exige login). Ela **não** está neste repositório; consulte a licença na página do Kaggle. O passo 3 diz onde colocar os arquivos.
 
 ### 2. Instalação
 
@@ -367,11 +367,23 @@ O `py -3.11` garante que o ambiente seja criado com o Python 3.11 mesmo que haja
 
 ### 3. Construção da base de conhecimento (nesta ordem)
 
+A pasta `data` não vem no repositório. Crie-a na raiz do projeto e copie para ela os CSVs do Kaggle:
+
+```
+mkdir data
+```
+
+O pipeline lê cinco arquivos: `olist_order_reviews_dataset.csv`, `olist_orders_dataset.csv`, `olist_order_items_dataset.csv`, `olist_products_dataset.csv` e `product_category_name_translation.csv`. Os outros arquivos da base podem ficar na pasta, mas não são usados.
+
+Depois rode, com o ambiente virtual ativo:
+
 ```
 python src/preparar_base.py
 python src/enriquecer_metadados.py
 python src/indexar.py
 ```
+
+Para conferir se deu certo: o `preparar_base.py` termina o funil em 37.994 avaliações, e o `indexar.py` informa a coleção com 37.994 documentos e três conferências de filtro, com 3.647 (entrega atrasada), 10.645 (nota negativa) e 3.067 (categoria `beleza_saude`) documentos.
 
 O `indexar.py` baixa o modelo de embeddings do Hugging Face na primeira execução (precisa de internet) e leva de 8 a 9 minutos na CPU para gerar os embeddings (469 s e 516 s em duas execuções); depois usa o cache em `data/processed/embeddings_e5_base.npy`. Depois do primeiro download, `set HF_HUB_OFFLINE=1` evita consultas de rede.
 
@@ -384,6 +396,8 @@ Interface (com o Ollama aberto):
 ```
 streamlit run src/app.py
 ```
+
+Na primeira execução, o Streamlit pede um e-mail no terminal: basta apertar Enter. A interface abre em `http://localhost:8501`, e o terminal fica ocupado enquanto ela roda (Ctrl+C para encerrar).
 
 Linha de comando:
 
@@ -427,7 +441,7 @@ voc-rag-olist/
 │   ├── app.py                     interface Streamlit
 │   ├── avaliar.py                 avaliação (comportamento, tempos, citações)
 │   └── verificar_enunciado.py     roda as perguntas literais do enunciado
-├── avaliacao/                     resultados da rodada 1
+├── avaliacao/                     resultados da rodada 1 e calibracao.csv (calibração do limiar)
 │   ├── rodada2/                   resultados, citações rotuladas e resumo da rodada 2
 │   ├── rodada3/                   resultados e resumo da rodada 3 (classificador final)
 │   └── enunciado/                 respostas às perguntas literais do enunciado
