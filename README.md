@@ -387,7 +387,7 @@ Para conferir se deu certo: o `preparar_base.py` termina o funil em 37.994 avali
 
 O `indexar.py` baixa o modelo de embeddings do Hugging Face na primeira execução (precisa de internet) e leva de 8 a 9 minutos na CPU para gerar os embeddings (469 s e 516 s em duas execuções); depois usa o cache em `data/processed/embeddings_e5_base.npy`. Depois do primeiro download, `set HF_HUB_OFFLINE=1` evita consultas de rede.
 
-**Quanto tempo leva.** Do zero, conte com 30 minutos a 1 hora, quase tudo em downloads: o `qwen3:8b` (cerca de 5 GB), as bibliotecas Python (o PyTorch é a maior), os CSVs do Kaggle e os 8 a 9 minutos dos embeddings. A primeira pergunta depois de abrir o Ollama leva cerca de 30 s, pela carga do modelo; as seguintes, cerca de 8 s. Para avaliar sem instalar, as respostas reais do sistema estão em [`avaliacao/`](avaliacao/).
+**Quanto tempo leva.** Do zero, conte com 30 minutos a 1 hora, quase tudo em downloads: o `qwen3:8b` (cerca de 5 GB), as bibliotecas Python (o PyTorch é a maior), os CSVs do Kaggle e os 8 a 9 minutos dos embeddings. A primeira pergunta depois de abrir o Ollama leva cerca de 30 s, pela carga do modelo; as seguintes, cerca de 8 s. Esses tempos foram medidos com uma GPU de 8 GB; sem GPU, o Ollama roda o modelo na CPU e a geração fica mais lenta (não medido). Para avaliar sem instalar, as respostas reais do sistema estão em [`avaliacao/`](avaliacao/).
 
 ### 4. Uso
 
@@ -402,7 +402,7 @@ Na primeira execução, o Streamlit pede um e-mail no terminal: basta apertar En
 Linha de comando:
 
 ```
-python src/rag.py "Quais problemas de entrega apareceram em 2017?" --debug
+python src/rag.py "Quais reclamações sobre atraso na entrega apareceram em 2017?" --debug
 python src/rag.py "O que os clientes elogiam?" --categoria bebes
 python src/rag.py --listar-categorias
 python src/rag.py                      # modo interativo
@@ -420,6 +420,8 @@ python src/avaliar.py --rotular --rodada minha_rodada     # avaliação manual d
 python src/avaliar.py --resumo --rodada minha_rodada      # números finais
 python src/verificar_enunciado.py                         # as 18 perguntas do enunciado
 ```
+
+Atenção ao que cada script grava. O `avaliar.py` com um nome novo em `--rodada` cria uma pasta própria e não toca nos resultados versionados; sem `--rodada`, regrava os arquivos da rodada 1 em `avaliacao/`. O `verificar_enunciado.py` regrava `avaliacao/enunciado/resultados.csv`, e o `calibrar_limiar.py` grava em `data/processed/calibracao.csv`. Para voltar aos arquivos do repositório, use `git checkout -- avaliacao`. Como a decisão de escopo e a resposta vêm de um modelo de linguagem, uma nova execução pode dar resultados um pouco diferentes dos versionados.
 
 ## Estrutura do repositório
 
